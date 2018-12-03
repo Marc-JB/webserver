@@ -1,15 +1,7 @@
-# @peregrine/webserver
-**Note: this is very experimental**
-
-Quickly made example:
-
-```TypeScript
-import { Server, Endpoint, Controller, Status } from "@peregrine/webserver"
+/* import { Server, Endpoint, Controller, Status } from "../main/index"
 import { HttpErrors } from "@peregrine/exceptions"
 
 const server = new Server()
-
-// Customised endpoint
 const endpoint = new Endpoint()
 endpoint.get("/users/@me", (request) => {
     if(request.secure)
@@ -19,17 +11,12 @@ endpoint.get("/users/@me", (request) => {
 })
 server.addApiEndpoint(endpoint)
 
-// Quick RESTful endpoint creation (exmaple is level 2, level 3 should be possible)
-
-// Model
 class Person {
     constructor(public name: string){}
 }
 
-// Datasource
 const persons = [new Person("Person X"), new Person("Someone")]
 
-// Controller
 class PersonController implements Controller<Person> {
     resourceName: string = "person"
 
@@ -67,5 +54,4 @@ class PersonController implements Controller<Person> {
     }
 }
 
-server.addController(new PersonController())
-```
+server.addController(new PersonController()) */
