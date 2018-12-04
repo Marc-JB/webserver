@@ -1,6 +1,6 @@
 {
   "name": "@peregrine/webserver",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "main": "build/main/index.js",
   "types": "build/main/index.d.ts",

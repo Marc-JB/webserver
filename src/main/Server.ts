@@ -30,14 +30,14 @@ export default class Server extends Endpoint {
     public addController<T extends object>(controller: Controller<T>, apiVersion: number = 1){
         const endpoint = new Endpoint()
         endpoint.get(`/${controller.resourceName}/`, async (request) => new OK(await controller.getAll(request.query)))
-        endpoint.get(`/${controller.resourceName}/:id`, async (request) => new OK(await controller.get(parseInt(request.params.id.toString()), request.query)))
+        endpoint.get(`/${controller.resourceName}/:id`, async (request) => new OK(await controller.get(request.params.id, request.query)))
         endpoint.post(`/${controller.resourceName}/`, async (request) => new Created(await controller.create(request.body, request.query)))
         endpoint.put(`/${controller.resourceName}/`, async (request) => {
             await controller.updateAll(request.body, request.params)
             return new NoContent()
         })
         endpoint.put(`/${controller.resourceName}/:id`, async (request) => {
-            await controller.update(parseInt(request.params.id.toString()), request.body, request.params)
+            await controller.update(request.params.id, request.body, request.params)
             return new NoContent()
         })
         endpoint.delete(`/${controller.resourceName}/`, async (request) => {
@@ -45,7 +45,7 @@ export default class Server extends Endpoint {
             return new NoContent()
         })
         endpoint.delete(`/${controller.resourceName}/:id`, async (request) => {
-            await controller.delete(parseInt(request.params.id.toString()), request.params)
+            await controller.delete(request.params.id, request.params)
             return new NoContent()
         })
         this.addApiEndpoint(endpoint, apiVersion)
@@ -63,12 +63,12 @@ export default class Server extends Endpoint {
         this.express.use(((err, req, res, next) => res.status(err.code || 500).json(err)) as express.ErrorRequestHandler)
     }
 
-    public start(port: number = 8080, customServer: Http | null = null, certificateOptions: CertificateOptions | null = null){
+    public start(port: number = 8080, customServer: Http | null = null, certificateOptions: CertificateOptions | null = null): Promise<{port: number}> {
         this.addNotFoundErrorHandler()
         this.addErrorHandler()
-        var server = customServer ? certificateOptions && customServer.createSecureServer ? customServer.createSecureServer(certificateOptions, this.express) : customServer.createServer(this.express) : this.express
-        server.listen(port, () => {
-            console.log(`Server running on port ${port}`)
+        return new Promise((resolve, reject) => {
+            const server = customServer ? certificateOptions && customServer.createSecureServer ? customServer.createSecureServer(certificateOptions, this.express) : customServer.createServer(this.express) : this.express
+            server.listen(port, () => resolve({port}))
         })
     }
 

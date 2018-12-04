@@ -1,19 +1,20 @@
 type PromiseLike<T> = T | Promise<T>
+type json = {[key: string]: any}
 
-export default interface Controller<T extends object> {
+export default interface Controller<Model extends object> {
     resourceName: string
 
-    get(id: number, params?: object): PromiseLike<T>
+    get(id: string, params: json): PromiseLike<Model>
 
-    getAll(params?: object): PromiseLike<T[]>
+    getAll(params: json): PromiseLike<Model[]>
 
-    create(model: object, params?: object): PromiseLike<T>
+    create(model: json, params: json): PromiseLike<Model>
 
-    update(id: number, model: T, params?: object): PromiseLike<void>
+    update(id: string, model: json, params: json): PromiseLike<void>
 
-    updateAll(model: object, params?: object): PromiseLike<void>
+    updateAll(model: json, params: json): PromiseLike<void>
 
-    delete(id: number, params?: object): PromiseLike<void>
+    delete(id: string, params: json): PromiseLike<void>
 
-    deleteAll(params?: object): PromiseLike<void>
+    deleteAll(params: json): PromiseLike<void>
 }
