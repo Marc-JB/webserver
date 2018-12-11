@@ -30,42 +30,43 @@ class Person {
 const persons = [new Person("Person X"), new Person("Someone")]
 
 // Controller
+type json = {[key: string]: any}
+
 class PersonController implements Controller<Person> {
     resourceName: string = "person"
 
-    get(id: number, params: object = {}): Person | Promise<Person> {
+    get(id: string, params: json): Person | Promise<Person> {
         return persons[id]
     }
     
-    getAll(params: object = {}): Person[] | Promise<Person[]> {
+    getAll(params: json): Person[] | Promise<Person[]> {
         return persons
     }
 
-    create(model: object, params: object = {}): Person | Promise<Person> {
-        const m = model as {name: string}
-        const person = new Person(m.name)
+    create(model: json, params: json): Person | Promise<Person> {
+        const person = new Person(model.name)
         persons.push(person)
         return person
     }
 
-    update(id: number, model: object, params: object = {}): void | Promise<void> {
-        const m = model as {name: string}
-        const person = new Person(m.name)
+    update(id: string, model: json, params: json): void | Promise<void> {
+        const person = new Person(model.name)
         persons[id] = person
     }
 
-    updateAll(model: object, params: object = {}): void | Promise<void> {
+    updateAll(model: json, params: json): void | Promise<void> {
         throw new HttpErrors.Client.MethodNotAllowed()
     }
 
-    delete(id: number, params: object = {}): void | Promise<void> {
+    delete(id: string, params: json): void | Promise<void> {
         throw new HttpErrors.Server.NotImplemented()
     }
 
-    deleteAll(params: object = {}): void | Promise<void> {
+    deleteAll(params: json): void | Promise<void> {
         throw new HttpErrors.Client.MethodNotAllowed()
     }
 }
 
 server.addController(new PersonController())
+server.start()
 ```

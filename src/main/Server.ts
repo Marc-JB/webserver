@@ -1,4 +1,4 @@
-import express, { Express, IRouter, Request } from "express"
+import express, { Express } from "express"
 import bodyParser from "body-parser"
 import { HttpErrors } from "@peregrine/exceptions"
 import net from "net"
@@ -7,6 +7,7 @@ import Controller from "./Controller"
 import OK from "./status/OK";
 import Created from "./status/Created";
 import NoContent from "./status/NoContent";
+import AuthHandler from "./AuthHandler";
 
 type Http = { 
     createServer: (app?: any) => net.Server,
@@ -27,25 +28,44 @@ export default class Server extends Endpoint {
         this.express.use(bodyParser.json({ type: 'application/vnd.api+json' }))
     }
 
-    public addController<T extends object>(controller: Controller<T>, apiVersion: number = 1){
+    /**
+     * Adds the controller to the server.
+     * @param controller The controller to add
+     * @param authHandler (optional) a class that handles the authentication.
+     * @param apiVersion The version of the API. This will be part of the url (/api/v1/, /api/v2/, ...)
+     */
+    public addController<T extends object, A = any>(controller: Controller<T, A>, authHandler?: AuthHandler<A>, apiVersion: number = 1){
         const endpoint = new Endpoint()
-        endpoint.get(`/${controller.resourceName}/`, async (request) => new OK(await controller.getAll(request.query)))
-        endpoint.get(`/${controller.resourceName}/:id`, async (request) => new OK(await controller.get(request.params.id, request.query)))
-        endpoint.post(`/${controller.resourceName}/`, async (request) => new Created(await controller.create(request.body, request.query)))
+        endpoint.get(`/${controller.resourceName}/`, async (request) => {
+            if(!controller.getAll) throw new HttpErrors.Client.NotFound()
+            return new OK(await controller.getAll(request.query, authHandler ? await authHandler.getAuth(request) : undefined))
+        })
+        endpoint.get(`/${controller.resourceName}/:id`, async (request) => {
+            if(!controller.get) throw new HttpErrors.Client.NotFound()
+            return new OK(await controller.get(request.params.id, request.query, authHandler ? await authHandler.getAuth(request) : undefined))
+        })
+        endpoint.post(`/${controller.resourceName}/`, async (request) => {
+            if(!controller.create) throw new HttpErrors.Client.NotFound()
+            return new Created(await controller.create(request.body, request.query, authHandler ? await authHandler.getAuth(request) : undefined))
+        })
         endpoint.put(`/${controller.resourceName}/`, async (request) => {
-            await controller.updateAll(request.body, request.params)
+            if(!controller.updateAll) throw new HttpErrors.Client.NotFound()
+            await controller.updateAll(request.body, request.params, authHandler ? await authHandler.getAuth(request) : undefined)
             return new NoContent()
         })
         endpoint.put(`/${controller.resourceName}/:id`, async (request) => {
-            await controller.update(request.params.id, request.body, request.params)
+            if(!controller.update) throw new HttpErrors.Client.NotFound()
+            await controller.update(request.params.id, request.body, request.params, authHandler ? await authHandler.getAuth(request) : undefined)
             return new NoContent()
         })
         endpoint.delete(`/${controller.resourceName}/`, async (request) => {
-            await controller.deleteAll(request.params)
+            if(!controller.deleteAll) throw new HttpErrors.Client.NotFound()
+            await controller.deleteAll(request.params, authHandler ? await authHandler.getAuth(request) : undefined)
             return new NoContent()
         })
         endpoint.delete(`/${controller.resourceName}/:id`, async (request) => {
-            await controller.delete(request.params.id, request.params)
+            if(!controller.delete) throw new HttpErrors.Client.NotFound()
+            await controller.delete(request.params.id, request.params, authHandler ? await authHandler.getAuth(request) : undefined)
             return new NoContent()
         })
         this.addApiEndpoint(endpoint, apiVersion)

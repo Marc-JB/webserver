@@ -5,12 +5,14 @@ import Endpoint from "./Endpoint";
 import Server from "./Server";
 import Response from "./Response";
 import Controller from "./Controller";
+import AuthHandler from "./AuthHandler";
 
 export {
     Server, 
     Endpoint, 
     Response,
-    Controller
+    Controller,
+    AuthHandler
 }
 
 export const Status = {
