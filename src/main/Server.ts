@@ -29,6 +29,23 @@ export default class Server extends Endpoint {
     }
 
     /**
+     * Sets the [Cross-Origin Resource Sharing HTTP headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+     * @param allowedOrigins The origins that are allowed (Access-Control-Allow-Origin)
+     * @param allowedMethods A list of methods that are allowed (Access-Control-Allow-Methods)
+     * @param allowedHeaders A list of headers that are allowed (Access-Control-Allow-Headers)
+     * @param allowCredentials Wheter the server should accept credentials (Access-Control-Allow-Credentials)
+     */
+    public setCorsHeaders(allowedOrigins: string = "*", allowedMethods: string[] = ["GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"], allowedHeaders: string[] = ["X-Requested-With", "Authorization", "Content-Type"], allowCredentials: boolean = true){
+        this.express.use((req, res, next) => {
+            res.setHeader('Access-Control-Allow-Origin', allowedOrigins)
+            res.setHeader('Access-Control-Allow-Methods', allowedMethods.join(", "))
+            res.setHeader('Access-Control-Allow-Headers', allowedHeaders.join(", "))
+            res.setHeader('Access-Control-Allow-Credentials', `${allowCredentials}`)
+            next()
+        })
+    }
+
+    /**
      * Adds the controller to the server.
      * @param controller The controller to add
      * @param authHandler (optional) a class that handles the authentication.
