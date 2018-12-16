@@ -1,7 +1,7 @@
 {
   "name": "@peregrine/webserver",
-  "version": "0.1.5",
-  "description": "[EXPERIMENTAL] A wrapper for express",
+  "version": "0.1.6",
+  "description": "Express wrapper allowing you to create RESTful level 2 APIs easily",
   "main": "build/main/index.js",
   "types": "build/main/index.d.ts",
   "scripts": {
