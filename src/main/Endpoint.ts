@@ -26,7 +26,7 @@ export default class Endpoint {
         this.exprRouter.delete(path, Endpoint.getMapper(f))
     }
 
-    private static getMapper(f: (request: Request) => PromiseLike<IResponse>){
+    protected static getMapper(f: (request: Request) => PromiseLike<IResponse>){
         return async (request: Request, response: Response, next: NextFunction) => {
             try {
                 const responseModel = await f(request)

@@ -1,19 +1,23 @@
 type PromiseLike<T> = T | Promise<T>
+type json = {[key: string]: any}
 
-export default interface Controller<T extends object> {
+/**
+ * An basic controller suitable for basic RESTful resources.
+ * All actions (get, getAll, create, ...) are optional and will throw a 404 Not Found when not implemented.
+ * Authentication is optional.
+ */
+export default interface Controller<Model extends object = json, Auth = any> {
+    /**
+     * The value of this property will be the endpoint name.
+     * For example: with a value of "products", the endpoint will be /api/v1/products/
+     */
     resourceName: string
 
-    get(id: number, params?: object): PromiseLike<T>
-
-    getAll(params?: object): PromiseLike<T[]>
-
-    create(model: object, params?: object): PromiseLike<T>
-
-    update(id: number, model: T, params?: object): PromiseLike<void>
-
-    updateAll(model: object, params?: object): PromiseLike<void>
-
-    delete(id: number, params?: object): PromiseLike<void>
-
-    deleteAll(params?: object): PromiseLike<void>
+    get?: (id: string, params: json, auth?: Auth) => PromiseLike<Model>
+    getAll?: (params: json, auth?: Auth) => PromiseLike<Model[]>
+    create?: (model: json, params: json, auth?: Auth) => PromiseLike<Model>
+    update?: (id: string, model: json, params: json, auth?: Auth) => PromiseLike<void>
+    updateAll?: (model: json, params: json, auth?: Auth) => PromiseLike<void>
+    delete?: (id: string, params: json, auth?: Auth) => PromiseLike<void>
+    deleteAll?: (params: json, auth?: Auth) => PromiseLike<void>
 }
