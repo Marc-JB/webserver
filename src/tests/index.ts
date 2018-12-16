@@ -1,57 +1,57 @@
-/* import { Server, Endpoint, Controller, Status } from "../main/index"
-import { HttpErrors } from "@peregrine/exceptions"
+import "mocha"
+import * as chai from "chai"
+import { Request, Response } from "express"
+import Endpoint from "../main/Endpoint"
+import IResponse from "../main/Response"
+import Exception from "@peregrine/exceptions"
 
-const server = new Server()
-const endpoint = new Endpoint()
-endpoint.get("/users/@me", (request) => {
-    if(request.secure)
-        return new Status.OK({ user: "someone" })
+chai.should()
 
-    throw new HttpErrors.Client.BadRequest("Must be done over https")
+type PromiseLike<T> = T | Promise<T>
+
+class TestEndpoint extends Endpoint {
+    public static getMapperPublic(f: (request: Request) => PromiseLike<IResponse>){
+        return TestEndpoint.getMapper(f)
+    }
+}
+
+const fakeResponse = { 
+    status: () => { 
+        return { 
+            end: () => {}, 
+            json: () => { 
+                return { 
+                    end: () => {} 
+                } 
+            } 
+        } 
+    } 
+} as unknown as Response
+
+describe(`Endpoint: Error management`, () => {
+    it(`Endpoint should catch errors when thrown and call next()`, async () => {
+        const resultFunction = TestEndpoint.getMapperPublic(async () => { 
+            throw new Exception("Exception") 
+        })
+
+        let nextCalled = 0
+        const nextFunction = () => { nextCalled++ }
+        
+        await resultFunction({} as Request, fakeResponse, nextFunction)
+
+        chai.assert.isOk(nextCalled == 1, `Next function should be called once, was ${nextCalled} times`)
+    })
+
+    it(`Endpoint should succeed when no errors are thrown`, async () => {
+        const resultFunction = TestEndpoint.getMapperPublic(async () => { 
+            return { statusCode: 200, body: null }
+        })
+
+        let nextCalled = 0
+        const nextFunction = () => { nextCalled++ }
+        
+        await resultFunction({} as Request, fakeResponse, nextFunction)
+
+        chai.assert.isOk(nextCalled == 0, `Next function shouldn't be called, was ${nextCalled} times`)
+    })
 })
-server.addApiEndpoint(endpoint)
-
-class Person {
-    constructor(public name: string){}
-}
-
-const persons = [new Person("Person X"), new Person("Someone")]
-
-class PersonController implements Controller<Person> {
-    resourceName: string = "person"
-
-    get(id: number, params: object = {}): Person | Promise<Person> {
-        return persons[id]
-    }
-    
-    getAll(params: object = {}): Person[] | Promise<Person[]> {
-        return persons
-    }
-
-    create(model: object, params: object = {}): Person | Promise<Person> {
-        const m = model as {name: string}
-        const person = new Person(m.name)
-        persons.push(person)
-        return person
-    }
-
-    update(id: number, model: object, params: object = {}): void | Promise<void> {
-        const m = model as {name: string}
-        const person = new Person(m.name)
-        persons[id] = person
-    }
-
-    updateAll(model: object, params: object = {}): void | Promise<void> {
-        throw new HttpErrors.Client.MethodNotAllowed()
-    }
-
-    delete(id: number, params: object = {}): void | Promise<void> {
-        throw new HttpErrors.Server.NotImplemented()
-    }
-
-    deleteAll(params: object = {}): void | Promise<void> {
-        throw new HttpErrors.Client.MethodNotAllowed()
-    }
-}
-
-server.addController(new PersonController()) */
