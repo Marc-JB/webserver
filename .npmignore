@@ -71,5 +71,8 @@ build/tests/
 .vscode/
 *.code-workspace
 
+# CI
+.travis.yml
+
 # Other
 package-lock.json
