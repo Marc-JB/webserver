@@ -6,7 +6,8 @@ export class Controller {
         if(!targetClass.__actions__) 
             targetClass.__actions__ = []
 
-        targetClass.route = "/"
+        if(!targetClass.route)
+            targetClass.route = "/"
     }
 
     protected get actions(){
@@ -41,6 +42,6 @@ export class Controller {
     }
 
     public getActions(): Required<ControllerAction>[] {
-        return this.actions.filter(it => !it.httpMethod || !it.route) as Required<ControllerAction>[]
+        return this.actions.filter(it => it.httpMethod && it.route) as Required<ControllerAction>[]
     }
 }

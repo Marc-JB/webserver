@@ -1,7 +1,7 @@
 {
   "name": "@peregrine/webserver",
-  "version": "0.1.6",
-  "description": "Express wrapper allowing you to create RESTful level 2 APIs easily",
+  "version": "0.2.4",
+  "description": "HTTP server using TypeScript decorators",
   "main": "build/main/index.js",
   "types": "build/main/index.d.ts",
   "scripts": {

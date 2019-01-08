@@ -1,6 +1,5 @@
 # @peregrine/webserver
-Express wrapper allowing you to create RESTful level 2 APIs easily.  
-Syntax based on ASP.NET Core 2.1.
+HTTP server using TypeScript decorators
 
 ## Example
 **CustomerController.ts**
