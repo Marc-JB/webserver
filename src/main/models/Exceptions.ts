@@ -6,7 +6,7 @@ import { Exception } from "@peregrine/exceptions";
 export class PortInUseException extends Exception {
     public readonly name: string = "Port in use"
 
-    constructor(port: number, message: string = `Port ${port} is already in use`, errorCode?: number){
+    constructor(public readonly port: number | string, message: string = `Port ${port} is already in use`, errorCode?: number){
         super(message, errorCode)
     }
 }
