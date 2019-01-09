@@ -30,7 +30,7 @@ export class RequestHandler {
     }
 
     public matchUrl(url: string): { matches: false } | { matches: true, params: { [key: string]: string } } {
-        const urlMatches = url.match(new RegExp("^" + (this.fullPath.replace(/{[^\/{}]+}/g, `([^\/]+)`).replace(/\//g, `\\/`)) + "$"))
+        const urlMatches = url.match(new RegExp("^" + this.fullPath.replace(/{[^\/{}]+}/g, `([^\/]+)`).replace(/\//g, `\\/`) + "(\\?.*|)$"))
         if(!urlMatches) return { matches: false }
 
         const matches = this.fullPath.match(/{([^\/{}]+)}/g) || []
