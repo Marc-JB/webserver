@@ -1,6 +1,13 @@
 import http from "http"
 import https from "https"
-import http2 from "http2"
+
+declare function require(name:string): any
+let http2: any
+try {
+    http2 = require("http2")
+} catch (error) {
+    console.log(error)
+}
 
 /**
  * A class containing serveral constructors for HTTP servers
@@ -24,9 +31,9 @@ export class HttpModule {
 
     /**
      * An HTTP/2.0 server constructor
-     * @returns a function that creates an HTTP/2.0 server
+     * @returns a function that creates an HTTP/2.0 server (if node doesn't support http2, fallback to https)
      */
     public static get Http2(){
-        return http2.createSecureServer
+        return http2 ? http2.createSecureServer : https.createServer
     }
 }
