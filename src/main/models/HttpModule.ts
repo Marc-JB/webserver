@@ -6,7 +6,7 @@ let http2: any
 try {
     http2 = require("http2")
 } catch (error) {
-    console.log(error)
+    console.log(`Server doesn't support HTTP/2.0. HTTP/2.0 will fallback to HTTP/1.0 with TLS`)
 }
 
 /**
