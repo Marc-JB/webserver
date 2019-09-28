@@ -1,6 +1,6 @@
 import stream from "stream"
 import url from "url"
-import { Json } from ".."
+import { Json } from "../index"
 
 export type HttpRequest = { 
     headers: {[header: string]: string | string[] | undefined}, 

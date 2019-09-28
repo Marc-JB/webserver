@@ -1,6 +1,6 @@
 import net from "net"
 import { TlsOptions } from "tls"
-import { HttpRequest, HttpResponse } from ".."
+import { HttpRequest, HttpResponse } from "../index"
 
 export type PromiseLike<T> = T | Promise<T>
 

@@ -1,17 +1,26 @@
 import { File } from "@peregrine/filesystem"
 import { TlsOptions } from "tls"
 import net from "net"
-import { Endpoint, http, Request, Response, HttpRequest, HttpResponse, HttpModule, StringUtils, PortInUseException } from ".."
+import { Endpoint, http, Request, Response, HttpRequest, HttpResponse, HttpModule, StringUtils, PortInUseException } from "../index"
 
-export class Server extends Endpoint {
-    protected instances: { server: net.Server, port: number | string, onConnectedListener?: (connectionInfo: {port: number}) => void }[] = []
-
-    constructor(){
+class RootEndpoint extends Endpoint {
+    constructor() {
         super("")
     }
+
+    public async _onRequest(url: string, request: Request, response: Response){
+        this.onRequest(url, request, response);
+    }
+}
+
+export class Server {
+    protected rootEndpoint = new RootEndpoint()
+    protected instances: { server: net.Server, port: number | string, onConnectedListener?: (connectionInfo: {port: number}) => void }[] = []
+
+    constructor() {}
     
     protected onServerRequest(request: HttpRequest, response: HttpResponse){
-        this.onRequest(StringUtils.removeEnds(request.url as string, "/"), new Request(request), new Response(response))
+        this.rootEndpoint._onRequest(StringUtils.removeEnds(request.url as string, "/"), new Request(request), new Response(response))
     }
 
     /**
@@ -46,6 +55,13 @@ export class Server extends Endpoint {
         }
         this.instances.push({server, port})
         return { port }
+    }
+    
+    /**
+     * @returns the root endpoint
+     */
+    public get root(): Endpoint {
+        return this.rootEndpoint;
     }
 
     protected static listen(server: net.Server, port: number | string){

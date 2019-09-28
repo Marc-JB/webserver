@@ -1,5 +1,5 @@
-import { Controller as C } from "../internal";
-import { BaseClass, JsonObject } from "..";
+import { Controller as C } from "../internal/index";
+import { BaseClass, JsonObject } from "../index";
 
 /**
  * Registeres the class as controller

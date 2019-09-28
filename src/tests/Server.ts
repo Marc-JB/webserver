@@ -1,22 +1,26 @@
+import { suite, test } from "@testdeck/mocha";
 import "mocha"
 import * as chai from "chai"
-import { Server, PortInUseException } from "../../build/main";
+import { Server, PortInUseException } from "../../build/main/index";
 
 chai.should()
 
-describe(`Server`, () => {
-    it(`Server should have empty path`, () => {
+@suite
+class ServerTests {
+    @test
+    serverShouldHaveEmptyPath() {
         // Arrange
-        const server = new Server()
+        const server = new Server().root
 
         // Act
         const path = server.fullPath
 
         // Assert
         path.should.be.a("string").which.is.empty
-    })
+    }
 
-    it(`Server.listen should throw PortInUseException when port is in use`, async () => {
+    @test
+    async serverListen_ShouldThrowPortInUseException_WhenPortIsInUse(){
         // Arrange
         const server1 = new Server()
         const server2 = new Server()
@@ -35,5 +39,5 @@ describe(`Server`, () => {
         error.should.not.be.null
         error.should.not.eql({})
         error.should.be.an.instanceOf(PortInUseException)
-    })
-})
+    }
+}

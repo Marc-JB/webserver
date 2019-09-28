@@ -1,5 +1,5 @@
-import { Controller, ControllerActionParam } from "../internal";
-import { JsonObject } from "..";
+import { Controller, ControllerActionParam } from "../internal/index";
+import { JsonObject } from "../index";
 
 /**
  * The request body as string, json or null/undefined

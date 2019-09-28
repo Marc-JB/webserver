@@ -1,5 +1,5 @@
-import { Controller, ControllerAction } from "../internal";
-import { JsonObject, http } from "..";
+import { Controller, ControllerAction } from "../internal/index";
+import { JsonObject, http } from "../index";
 
 /**
  * Registeres the method as listener to requests with the given HTTP method on the given route
