@@ -1,6 +1,6 @@
 {
   "name": "@peregrine/webserver",
-  "version": "0.2.7",
+  "version": "0.3.0-alpha",
   "description": "HTTP server using TypeScript decorators",
   "main": "build/main/index.js",
   "types": "build/main/index.d.ts",
