@@ -10,7 +10,7 @@ class ServerTests {
     @test
     serverShouldHaveEmptyPath() {
         // Arrange
-        const server = new Server()
+        const server = new Server().root
 
         // Act
         const path = server.fullPath

@@ -10,7 +10,7 @@ class EndpointTests {
     @test
     routeShouldCreateNewEndpointAsChild() {
         // Arrange
-        const server = new Server()
+        const server = new Server().root
         
         // Act
         const endpoint = server.route("/resource")
@@ -23,7 +23,7 @@ class EndpointTests {
     @test
     routeShouldAttachEndpointToRightPath() {
         // Arrange
-        const server = new Server()
+        const server = new Server().root
         
         // Act
         const endpoint1 = server.route("/resource")
