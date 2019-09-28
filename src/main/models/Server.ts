@@ -1,7 +1,7 @@
 import { File } from "@peregrine/filesystem"
 import { TlsOptions } from "tls"
 import net from "net"
-import { Endpoint, http, Request, Response, HttpRequest, HttpResponse, HttpModule, StringUtils, PortInUseException } from ".."
+import { Endpoint, http, Request, Response, HttpRequest, HttpResponse, HttpModule, StringUtils, PortInUseException } from "../index"
 
 export class Server extends Endpoint {
     protected instances: { server: net.Server, port: number | string, onConnectedListener?: (connectionInfo: {port: number}) => void }[] = []

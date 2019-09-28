@@ -1,4 +1,4 @@
-import { Get, Post, Put, Delete } from ".."
+import { Get, Post, Put, Delete } from "../index"
 
 /**
  * GET /

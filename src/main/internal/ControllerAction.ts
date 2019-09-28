@@ -1,5 +1,5 @@
-import { JsonObject, RequestHandlerCallback, http } from "..";
-import { ControllerActionParam } from ".";
+import { JsonObject, RequestHandlerCallback, http } from "../index";
+import { ControllerActionParam } from "./index";
 
 export class ControllerAction {
     public params: ControllerActionParam[] = []

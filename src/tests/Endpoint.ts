@@ -1,11 +1,14 @@
+import { suite, test } from "@testdeck/mocha"
 import "mocha"
 import * as chai from "chai"
-import { Server, Endpoint } from "../../build/main";
+import { Server, Endpoint } from "../../build/main/index"
 
 chai.should()
 
-describe(`Endpoint`, () => {
-    it(`Route should create a new endpoint, add it to the children and return it`, () => {
+@suite
+class EndpointTests {
+    @test
+    routeShouldCreateNewEndpointAsChild() {
         // Arrange
         const server = new Server()
         
@@ -15,9 +18,10 @@ describe(`Endpoint`, () => {
         // Assert
         endpoint.should.be.an.instanceOf(Endpoint)
         server.children.should.contain(endpoint)
-    })
+    }
 
-    it(`Route should attach the endpoint to the right path`, () => {
+    @test
+    routeShouldAttachEndpointToRightPath() {
         // Arrange
         const server = new Server()
         
@@ -30,5 +34,5 @@ describe(`Endpoint`, () => {
         const path2 = endpoint2.fullPath
         path1.should.equal("resource")
         path2.should.equal("resource/subresource")
-    })
-})
+    }
+}

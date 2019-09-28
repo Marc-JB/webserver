@@ -1,4 +1,4 @@
-import { Endpoint, RequestHandlerCallback, http, StringUtils, Json, Request } from "..";
+import { Endpoint, RequestHandlerCallback, http, StringUtils, Json, Request } from "../index";
 
 export class RequestHandler {
     constructor(

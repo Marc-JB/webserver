@@ -1,4 +1,4 @@
-import { Json, http } from "..";
+import { Json, http } from "../index";
 
 export type HttpResponse = {
     writeHead(code: number): any

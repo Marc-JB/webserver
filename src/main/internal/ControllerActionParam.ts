@@ -1,4 +1,4 @@
-import { Request } from ".."
+import { Request } from "../index"
 
 export class ControllerActionParam {
     public readonly type: "Body" | "Auth" | "Query" | "Param"

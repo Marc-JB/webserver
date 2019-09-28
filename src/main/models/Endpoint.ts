@@ -1,5 +1,5 @@
-import { http, Json, PromiseLike, StringUtils, Request, Response, JsonObject } from "..";
-import { Controller, RequestHandler } from "../internal";
+import { http, Json, PromiseLike, StringUtils, Request, Response, JsonObject } from "../index";
+import { Controller, RequestHandler } from "../internal/index";
 import { Exception } from "@peregrine/exceptions";
 
 export type RequestHandlerCallback = (request: Request) => PromiseLike<{ code: number, body?: string | Json }>

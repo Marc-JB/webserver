@@ -1,5 +1,5 @@
-import { ArrayUtils } from "..";
-import { ControllerAction, ControllerActionParam } from ".";
+import { ArrayUtils } from "../index";
+import { ControllerAction, ControllerActionParam } from "./index";
 
 export class Controller {
     constructor(protected targetClass: { __actions__?: ControllerAction[], route?: string }){
