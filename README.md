@@ -1,5 +1,5 @@
 # @peregrine/webserver
-HTTP server using TypeScript decorators
+Experimental node-http server using TypeScript decorators
 
 ## Example
 **CustomerController.ts**
