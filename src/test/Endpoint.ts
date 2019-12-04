@@ -1,15 +1,16 @@
 import { suite, test, expect } from "./TestSuite"
-import { Endpoint } from "../main/index"
+import { Endpoint, WebServerBuilder } from "../main/index"
 
 @suite
 export class EndpointTests {
     @test
-    routeShouldAttachEndpointToRightPath() {
+    async createEndpointAtPathShouldAttachEndpointToRightPath() {
         // Arrange
-        const endpoint1 = new Endpoint("/resource")
+        const server = await new WebServerBuilder().build()
+        const endpoint1 = new Endpoint("/resource", server)
 
         // Act
-        const endpoint2 = endpoint1.route("/subresource")
+        const endpoint2 = endpoint1.createEndpointAtPath("/subresource")
 
         // Assert
         expect(endpoint1.fullPath).to.equal("resource")
