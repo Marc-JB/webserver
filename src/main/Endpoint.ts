@@ -1,9 +1,9 @@
-import { RequestHandler } from "./RequestHandler"
-import { HttpRequest, HttpRequestWithParamsInternal } from "./HttpRequest"
 import { MaybeAsync, wrapInPromise } from "./AsyncUtils"
 import { EndpointParent } from "./EndpointParentInf"
+import { HttpRequest, HttpRequestWithParamsInternal } from "./HttpRequest"
+import { HttpRequestInf, HttpRequestInfWithParams } from "./HttpRequestInf"
+import { RequestHandler } from "./RequestHandler"
 import { rewriteObjectAsMap } from "./Utils"
-import { HttpRequestInfWithParams, HttpRequestInf } from "./HttpRequestInf"
 
 export type ResponseObjectType = { code: number, body?: any, headers?: Map<string, number | string | string[]> } | null
 export type RequestHandlerCallback = (request: Readonly<HttpRequestInfWithParams>) => MaybeAsync<ResponseObjectType>

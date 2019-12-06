@@ -1,8 +1,8 @@
-import { UrlWithParsedQuery, parse as parseUrl } from "url"
 import { Http2ServerRequest } from "http2"
 import { Readable as ReadableStream } from "stream"
+import { parse as parseUrl, UrlWithParsedQuery } from "url"
+import { HttpRequestInf, HttpRequestInfCore, HttpRequestInfWithParams, HttpRequestInfWithParamsInternal } from "./HttpRequestInf"
 import { rewriteObjectAsMap } from "./Utils"
-import { HttpRequestInfCore, HttpRequestInf, HttpRequestInfWithParamsInternal, HttpRequestInfWithParams } from "./HttpRequestInf"
 
 enum HttpBodyReadState {
     NOT_STARTED, READING, DONE

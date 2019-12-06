@@ -1,8 +1,8 @@
 import { Http2Server } from "http2"
-import { Endpoint, ResponseObjectType } from "./Endpoint";
+import { Endpoint, ResponseObjectType } from "./Endpoint"
+import { EndpointParent } from "./EndpointParentInf"
 import { HttpRequest } from "./HttpRequest"
-import { EndpointParent } from "./EndpointParentInf";
-import { rewriteMapAsObject } from "./Utils";
+import { rewriteMapAsObject } from "./Utils"
 
 export class Server implements EndpointParent {
     public fullPath: string = ""
