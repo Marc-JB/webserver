@@ -1,5 +1,6 @@
-import { Endpoint, AsyncRequestHandlerCallback, HttpRequest } from "./index";
+import { Endpoint, AsyncRequestHandlerCallback } from "./index";
 import { ResponseObjectType } from "./Endpoint";
+import { HttpRequestInfWithParams } from "./HttpRequestInf";
 
 export class RequestHandler {
     constructor(
@@ -15,7 +16,7 @@ export class RequestHandler {
         return parentPath + "/" + thisPath
     }
 
-    public async invoke(request: Readonly<HttpRequest>): Promise<ResponseObjectType> {
+    public async invoke(request: Readonly<HttpRequestInfWithParams>): Promise<ResponseObjectType> {
         return this.handler(request)
     }
 

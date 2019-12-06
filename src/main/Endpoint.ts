@@ -1,17 +1,19 @@
 import { RequestHandler } from "./RequestHandler"
-import { HttpRequest } from "./HttpRequest"
+import { HttpRequest, HttpRequestWithParamsInternal } from "./HttpRequest"
 import { MaybeAsync, wrapInPromise } from "./AsyncUtils"
-import { EndpointParent } from "./Types"
+import { EndpointParent } from "./EndpointParent"
+import { rewriteObjectAsMap } from "./Utils"
+import { HttpRequestInfWithParams, HttpRequestInf } from "./HttpRequestInf"
 
 export type ResponseObjectType = { code: number, body?: any, headers?: Map<string, number | string | string[]> } | null
-export type RequestHandlerCallback = (request: Readonly<HttpRequest>) => MaybeAsync<ResponseObjectType>
-export type AsyncRequestHandlerCallback = (request: Readonly<HttpRequest>) => Promise<ResponseObjectType>
+export type RequestHandlerCallback = (request: Readonly<HttpRequestInfWithParams>) => MaybeAsync<ResponseObjectType>
+export type AsyncRequestHandlerCallback = (request: Readonly<HttpRequestInfWithParams>) => Promise<ResponseObjectType>
 
 export class Endpoint implements EndpointParent {
     public readonly handlers: Set<RequestHandler> = new Set()
     public readonly childEndpoints: Set<Endpoint> = new Set()
-    public readonly requestMiddleware: Set<((request: HttpRequest) => Promise<void>)> = new Set()
-    public readonly responseMiddleware: Set<((request: HttpRequest, response: ResponseObjectType) => Promise<ResponseObjectType>)> = new Set()
+    public readonly requestMiddleware: Set<((request: HttpRequestInf) => Promise<void>)> = new Set()
+    public readonly responseMiddleware: Set<((request: HttpRequestInf, response: ResponseObjectType) => Promise<ResponseObjectType>)> = new Set()
 
     constructor(
         public readonly path: string,
@@ -119,7 +121,7 @@ export class Endpoint implements EndpointParent {
      * Adds the middleware to this endpoint
      * @param middleware a function that takes a request and modifies it
      */
-    public addRequestMiddleware(middleware: (request: HttpRequest) => void | Promise<void>){
+    public addRequestMiddleware(middleware: (request: HttpRequestInf) => void | Promise<void>){
         this.requestMiddleware.add(wrapInPromise(middleware))
     }
 
@@ -127,7 +129,7 @@ export class Endpoint implements EndpointParent {
      * Adds the authentication middleware tot this endpoint
      * @param middleware a function that takes a request and returns the authentication object (like a user, admin, token)
      */
-    public addAuthenticationMiddleware(middleware: (request: HttpRequest) => any | Promise<any>){
+    public addAuthenticationMiddleware(middleware: (request: HttpRequestInf) => any | Promise<any>){
         this.addRequestMiddleware(async request => {
             request.authentication = await wrapInPromise(middleware)(request)
         })
@@ -141,7 +143,7 @@ export class Endpoint implements EndpointParent {
         this.responseMiddleware.add(wrapInPromise(middleware))
     }
 
-    public async onRequest(url: string, request: HttpRequest): Promise<ResponseObjectType> {
+    public async onRequest(url: string, request: HttpRequestInf): Promise<ResponseObjectType> {
         let responseObject: ResponseObjectType = null
 
         // Request middleware
@@ -152,7 +154,7 @@ export class Endpoint implements EndpointParent {
         // Loop trough child endpoints to check if they have a reponse ready
         for(const endpoint of this.childEndpoints) {
             if(url.startsWith(endpoint.fullPath)) {
-                const r = await endpoint.onRequest(url, request.copy())
+                const r = await endpoint.onRequest(url, request)
                 if(r !== null) {
                     if(responseObject !== null) {
                         throw new Error(`${url} is registered on 2 different endpoints!`)
@@ -169,16 +171,16 @@ export class Endpoint implements EndpointParent {
                 if(responseObject !== null) {
                     throw new Error(`[${request.method.toUpperCase()}: ${url}] is registered on 2 different endpoints!`)
                 }
-                const rc = request.copy()
-                rc.params = matchResult.params
-                responseObject = await handler.invoke(rc)
+                const requestWithParams = HttpRequestWithParamsInternal.fromHttpRequest(request)
+                rewriteObjectAsMap(matchResult.params, requestWithParams.params)
+                responseObject = await handler.invoke(requestWithParams)
             }
         }
 
         // Response middleware
         for(const responseMiddleware of this.responseMiddleware) {
             if(responseObject !== null) {
-                responseObject = await responseMiddleware(request.copy(), responseObject)
+                responseObject = await responseMiddleware(request, responseObject)
             }
         }
 
