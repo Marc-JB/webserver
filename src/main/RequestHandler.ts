@@ -1,6 +1,5 @@
-import { ResponseObjectType } from "./Endpoint"
+import { AsyncRequestHandlerCallback, Endpoint, ResponseObjectType } from "./Endpoint"
 import { HttpRequestInfWithParams } from "./HttpRequestInf"
-import { AsyncRequestHandlerCallback, Endpoint } from "./index"
 
 export class RequestHandler {
     constructor(
