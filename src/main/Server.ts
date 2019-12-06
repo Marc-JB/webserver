@@ -1,7 +1,7 @@
 import { Http2Server } from "http2"
 import { Endpoint, ResponseObjectType } from "./Endpoint";
 import { HttpRequest } from "./HttpRequest"
-import { EndpointParent } from "./EndpointParent";
+import { EndpointParent } from "./EndpointParentInf";
 import { rewriteMapAsObject } from "./Utils";
 
 export class Server implements EndpointParent {

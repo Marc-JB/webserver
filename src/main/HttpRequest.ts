@@ -2,7 +2,7 @@ import { UrlWithParsedQuery, parse as parseUrl } from "url"
 import { Http2ServerRequest } from "http2"
 import { Readable as ReadableStream } from "stream"
 import { rewriteObjectAsMap } from "./Utils"
-import { HttpRequestInfCore, HttpRequestInf, HttpRequestInfWithParamsInternal } from "./HttpRequestInf"
+import { HttpRequestInfCore, HttpRequestInf, HttpRequestInfWithParamsInternal, HttpRequestInfWithParams } from "./HttpRequestInf"
 
 enum HttpBodyReadState {
     NOT_STARTED, READING, DONE
@@ -79,5 +79,11 @@ export class HttpRequestWithParamsInternal extends HttpRequest implements HttpRe
         const req = r as HttpRequestInf & { params?: Map<string, string> }
         req.params = new Map()
         return req as HttpRequestInfWithParamsInternal
+    }
+
+    static removeParams(r: HttpRequestInfWithParams): HttpRequestInf {
+        const req = r as HttpRequestInf & { params: any }
+        delete req.params
+        return req as HttpRequestInf
     }
 }

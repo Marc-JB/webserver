@@ -1,7 +1,7 @@
 import { RequestHandler } from "./RequestHandler"
 import { HttpRequest, HttpRequestWithParamsInternal } from "./HttpRequest"
 import { MaybeAsync, wrapInPromise } from "./AsyncUtils"
-import { EndpointParent } from "./EndpointParent"
+import { EndpointParent } from "./EndpointParentInf"
 import { rewriteObjectAsMap } from "./Utils"
 import { HttpRequestInfWithParams, HttpRequestInf } from "./HttpRequestInf"
 
@@ -174,6 +174,7 @@ export class Endpoint implements EndpointParent {
                 const requestWithParams = HttpRequestWithParamsInternal.fromHttpRequest(request)
                 rewriteObjectAsMap(matchResult.params, requestWithParams.params)
                 responseObject = await handler.invoke(requestWithParams)
+                HttpRequestWithParamsInternal.removeParams(requestWithParams)
             }
         }
 
