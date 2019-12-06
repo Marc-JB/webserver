@@ -17,37 +17,43 @@ export class Server implements EndpointParent {
 
     constructor(protected readonly server: Http2Server) {
         server.on("request", async (req, res) => {
-            const request = new HttpRequest(req)
-            const url = (req.url as string).split("/").filter(it => it !== "").join("/")
+            try {
+                const request = new HttpRequest(req)
+                const url = (req.url as string).split("/").filter(it => it !== "").join("/")
 
-            let responseObject: ResponseObjectType | null = null
+                let responseObject: ResponseObjectType | null = null
 
-            // Loop trough child endpoints to check if they have a reponse ready
-            for(const endpoint of this.childEndpoints) {
-                if(url.startsWith(endpoint.fullPath)) {
-                    const r = await endpoint.onRequest(url, request)
-                    if(r !== null) {
-                        if(responseObject !== null) {
-                            throw new Error(`${url} is registered on 2 different endpoints!`)
+                // Loop trough child endpoints to check if they have a reponse ready
+                for(const endpoint of this.childEndpoints) {
+                    if(url.startsWith(endpoint.fullPath)) {
+                        const r = await endpoint.onRequest(url, request)
+                        if(r !== null) {
+                            if(responseObject !== null) {
+                                throw new Error(`${url} is registered on 2 different endpoints!`)
+                            }
+                            responseObject = r
                         }
-                        responseObject = r
                     }
                 }
-            }
 
-            if(responseObject === null) {
-                res.writeHead(404)
+                if(responseObject === null) {
+                    res.writeHead(404)
+                    res.end()
+                } else {
+                    if("code" !in responseObject) {
+                        throw new Error("Invalid response, response doesn't contain HTTP status code")
+                    }
+                    if("body" !in responseObject || typeof responseObject.body !== "string") {
+                        throw new Error("Invalid response, response doesn't contain HTTP a plaintext body")
+                    }
+
+                    res.writeHead(responseObject.code, responseObject.headers !== undefined ? rewriteMapAsObject(responseObject.headers) : undefined)
+                    res.end(responseObject.body)
+                }
+            } catch (error) {
+                res.writeHead(500)
                 res.end()
-            } else {
-                if("code" !in responseObject) {
-                    throw new Error("Invalid response, response doesn't contain HTTP status code")
-                }
-                if("body" !in responseObject || typeof responseObject.body !== "string") {
-                    throw new Error("Invalid response, response doesn't contain HTTP a plaintext body")
-                }
-
-                res.writeHead(responseObject.code, responseObject.headers !== undefined ? rewriteMapAsObject(responseObject.headers) : undefined)
-                res.end(responseObject.body)
+                throw error
             }
         })
     }
