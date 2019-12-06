@@ -12,6 +12,8 @@ export class WebServerBuilder {
     protected cert: CertificateType | null = null
     protected key: CertificateType | null = null
 
+    public enableDevelopmentMessages: boolean = false
+
     getCert(): CertificateType | null {
         return this.cert
     }
