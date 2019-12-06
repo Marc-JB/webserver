@@ -12,7 +12,12 @@ export class WebServerBuilder {
     protected cert: CertificateType | null = null
     protected key: CertificateType | null = null
 
-    public enableDevelopmentMessages: boolean = false
+    public developmentMessagesEnabled: boolean = false
+
+    enableDevelopmentMessages(): this {
+        this.developmentMessagesEnabled = true
+        return this
+    }
 
     getCert(): CertificateType | null {
         return this.cert
@@ -61,9 +66,9 @@ export class WebServerBuilder {
         await Promise.all(p)
 
         if (cert === null && key === null) {
-            return new Server(http2.createServer())
+            return new Server(http2.createServer(), this.developmentMessagesEnabled)
         } else if (cert !== null && key !== null) {
-            return new Server(http2.createSecureServer({ allowHTTP1: true, cert, key }))
+            return new Server(http2.createSecureServer({ allowHTTP1: true, cert, key }), this.developmentMessagesEnabled)
         } else {
             throw new Error("Key and cert must be both set or unset")
         }

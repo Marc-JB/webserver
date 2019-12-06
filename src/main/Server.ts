@@ -15,7 +15,7 @@ export class Server implements EndpointParent {
         return new Set(this._instances)
     }
 
-    constructor(protected readonly server: Http2Server, protected readonly enableDevelopmentMessages: boolean = false) {
+    constructor(protected readonly server: Http2Server, protected readonly developmentMessagesEnabled: boolean = false) {
         server.on("request", async (req, res) => {
             try {
                 const request = new HttpRequest(req)
@@ -52,7 +52,7 @@ export class Server implements EndpointParent {
                 }
             } catch (error) {
                 res.writeHead(500)
-                if(this.enableDevelopmentMessages) {
+                if(this.developmentMessagesEnabled) {
                     res.end(JSON.stringify(error))
                 } else {
                     res.end()
