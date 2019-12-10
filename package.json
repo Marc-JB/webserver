@@ -2,8 +2,8 @@
     "name": "@peregrine/webserver",
     "version": "0.4.0-alpha",
     "description": "Experimental http server for node",
-    "main": "./build/main/index.js",
-    "typings": "./build/main/index.d.ts",
+    "main": "./build/core/main/index.js",
+    "typings": "./build/core/main/index.d.ts",
     "type": "module",
     "scripts": {
         "build": "tsc -b -v ./src/main/",
