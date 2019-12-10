@@ -1,12 +1,11 @@
-import { MaybeAsync, wrapInPromise } from "./AsyncUtils"
+import { Async, Maps } from "../../lib/main/index"
 import { EndpointParent } from "./EndpointParentInf"
 import { HttpRequest, HttpRequestWithParamsInternal } from "./HttpRequest"
 import { HttpRequestInf, HttpRequestInfWithParams } from "./HttpRequestInf"
 import { RequestHandler } from "./RequestHandler"
-import { rewriteObjectAsMap } from "./Utils"
 
 export type ResponseObjectType = { code: number, body?: any, headers?: Map<string, number | string | string[]> } | null
-export type RequestHandlerCallback = (request: Readonly<HttpRequestInfWithParams>) => MaybeAsync<ResponseObjectType>
+export type RequestHandlerCallback = (request: Readonly<HttpRequestInfWithParams>) => Async.MaybeAsync<ResponseObjectType>
 export type AsyncRequestHandlerCallback = (request: Readonly<HttpRequestInfWithParams>) => Promise<ResponseObjectType>
 
 export class Endpoint implements EndpointParent {
@@ -103,7 +102,7 @@ export class Endpoint implements EndpointParent {
      * @param handler a function that takes the request and returns a response or throws an error
      */
     public attachHandler(method: string, route: string, handler: RequestHandlerCallback){
-        this.handlers.add(new RequestHandler(route, method, wrapInPromise(handler), this))
+        this.handlers.add(new RequestHandler(route, method, Async.wrapInPromise(handler), this))
     }
 
     /**
@@ -122,7 +121,7 @@ export class Endpoint implements EndpointParent {
      * @param middleware a function that takes a request and modifies it
      */
     public addRequestMiddleware(middleware: (request: HttpRequestInf) => void | Promise<void>){
-        this.requestMiddleware.add(wrapInPromise(middleware))
+        this.requestMiddleware.add(Async.wrapInPromise(middleware))
     }
 
     /**
@@ -131,7 +130,7 @@ export class Endpoint implements EndpointParent {
      */
     public addAuthenticationMiddleware(middleware: (request: HttpRequestInf) => any | Promise<any>){
         this.addRequestMiddleware(async request => {
-            request.authentication = await wrapInPromise(middleware)(request)
+            request.authentication = await Async.wrapInPromise(middleware)(request)
         })
     }
 
@@ -140,7 +139,7 @@ export class Endpoint implements EndpointParent {
      * @param middleware a function that takes a request and modifies it
      */
     public addResponseMiddleware(middleware: (request: Readonly<HttpRequest>, response: ResponseObjectType) => ResponseObjectType | Promise<ResponseObjectType>){
-        this.responseMiddleware.add(wrapInPromise(middleware))
+        this.responseMiddleware.add(Async.wrapInPromise(middleware))
     }
 
     public async onRequest(url: string, request: HttpRequestInf): Promise<ResponseObjectType> {
@@ -172,7 +171,7 @@ export class Endpoint implements EndpointParent {
                     throw new Error(`[${request.method.toUpperCase()}: ${url}] is registered on 2 different endpoints!`)
                 }
                 const requestWithParams = HttpRequestWithParamsInternal.fromHttpRequest(request)
-                rewriteObjectAsMap(matchResult.params, requestWithParams.params)
+                Maps.rewriteObjectAsMap(matchResult.params, requestWithParams.params)
                 responseObject = await handler.invoke(requestWithParams)
                 HttpRequestWithParamsInternal.removeParams(requestWithParams)
             }

@@ -1,4 +1,4 @@
-import { suite, test, expect } from "./TestSuite"
+import { suite, test, expect } from "../../lib/test/index"
 import { Endpoint, WebServerBuilder } from "../main/index"
 
 @suite

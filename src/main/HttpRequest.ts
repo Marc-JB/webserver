@@ -2,7 +2,7 @@ import { Http2ServerRequest } from "http2"
 import { Readable as ReadableStream } from "stream"
 import { parse as parseUrl, UrlWithParsedQuery } from "url"
 import { HttpRequestInf, HttpRequestInfCore, HttpRequestInfWithParams, HttpRequestInfWithParamsInternal } from "./HttpRequestInf"
-import { rewriteObjectAsMap } from "./Utils"
+import { Maps } from "../../lib/main/index"
 
 enum HttpBodyReadState {
     NOT_STARTED, READING, DONE
@@ -45,7 +45,7 @@ class HttpBodyStreamWrapper {
 export class HttpRequestCore implements HttpRequestInfCore {
     public readonly url: UrlWithParsedQuery = parseUrl(this.request.url, true)
     public readonly method: string = this.request.method.toUpperCase()
-    public readonly headers: ReadonlyMap<string, string | string[]> = rewriteObjectAsMap(this.request.headers)
+    public readonly headers: ReadonlyMap<string, string | string[]> = Maps.rewriteObjectAsMap(this.request.headers)
 
     private _body: Promise<string | null> | null = null
     public get body(): Promise<string | null> {

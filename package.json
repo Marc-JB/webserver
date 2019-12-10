@@ -7,7 +7,7 @@
     "type": "module",
     "scripts": {
         "build": "tsc -b -v ./src/main/",
-        "test": "tsc -b -v ./src/test/ && mocha -r esm --recursive --exit ./build/test/"
+        "test": "tsc -b -v ./src/test/ && mocha -r esm --recursive --exit ./build/"
     },
     "repository": {
         "type": "git",

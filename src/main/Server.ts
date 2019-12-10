@@ -2,7 +2,7 @@ import { Http2Server } from "http2"
 import { Endpoint, ResponseObjectType } from "./Endpoint"
 import { EndpointParent } from "./EndpointParentInf"
 import { HttpRequest } from "./HttpRequest"
-import { rewriteMapAsObject } from "./Utils"
+import { Maps } from "../../lib/main/index"
 
 export class Server implements EndpointParent {
     public fullPath: string = ""
@@ -47,7 +47,7 @@ export class Server implements EndpointParent {
                         throw new Error("Invalid response, response doesn't contain HTTP a plaintext body")
                     }
 
-                    res.writeHead(responseObject.code, responseObject.headers !== undefined ? rewriteMapAsObject(responseObject.headers) : undefined)
+                    res.writeHead(responseObject.code, responseObject.headers !== undefined ? Maps.rewriteMapAsObject(responseObject.headers) : undefined)
                     res.end(responseObject.body)
                 }
             } catch (error) {

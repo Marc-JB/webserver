@@ -1,7 +1,7 @@
 import chai from "chai"
 import chaiAsPromised from "chai-as-promised"
 import * as mocha from "mocha"
-import { wrapInPromise } from "../main/AsyncUtils"
+import { Async } from "../main/index"
 
 chai.use(chaiAsPromised)
 
@@ -24,7 +24,7 @@ export const test: MethodDecorator = (target: Object, propertyKey: string | symb
     const key = typeof propertyKey === "string" ? propertyKey : propertyKey.toString()
     const c = initSuite(target.constructor as ClassConstructor)
     const name = key.replace(/^[a-z]|[A-Z_]/g, (v, i) => i === 0 ? v.toUpperCase() : v === "_" ? " " : " " + v.toLowerCase())
-    c.suite.addTest(new mocha.Test(name, (done: mocha.Done) => { wrapInPromise(c.instance[key])().then(done, done) }))
+    c.suite.addTest(new mocha.Test(name, (done: mocha.Done) => { Async.wrapInPromise(c.instance[key])().then(done, done) }))
 }
 
 export const expect = chai.expect
