@@ -27,4 +27,8 @@ export const test: MethodDecorator = (target: Object, propertyKey: string | symb
     c.suite.addTest(new mocha.Test(name, (done: mocha.Done) => { Async.wrapInPromise(c.instance[key])().then(done, done) }))
 }
 
+export const Suite = suite
+
+export const Test = test
+
 export const expect = chai.expect
