@@ -2,9 +2,9 @@ import { suite, test, expect } from "./index"
 import { Maps } from "../main/index"
 
 @suite
-export class MapTests {
+export class MapToObjectTests {
     @test
-    rewriteMapAsObjectShouldReturnEmptyObjectForEmptyMap(){
+    rewriteShouldReturnEmptyObjectForEmptyMap(){
         // Arrange
         const map = new Map()
 
@@ -17,7 +17,7 @@ export class MapTests {
     }
 
     @test
-    rewriteMapAsObjectShouldReturnNonEmptyObjectForNonEmptyMap(){
+    rewriteShouldReturnNonEmptyObjectForNonEmptyMap(){
         // Arrange
         const map = new Map()
         const key = "hello"
@@ -36,7 +36,7 @@ export class MapTests {
     }
 
     @test
-    rewriteMapAsObjectShouldNotAddUndefined(){
+    rewriteShouldNotAddUndefined(){
         // Arrange
         const map = new Map()
         const key = "thisOneIsUndefined"
@@ -53,7 +53,7 @@ export class MapTests {
     }
 
     @test
-    rewriteMapAsObjectWithExplicitUndefinedShouldAddUndefinedProperty(){
+    rewriteWithExplicitUndefinedShouldAddUndefinedProperty(){
         // Arrange
         const map = new Map()
         const key = "thisOneIsUndefined"
@@ -69,5 +69,78 @@ export class MapTests {
         expect(result).to.have.property(key)
         expect(result[key]).to.be.an("undefined")
         expect(result[key]).to.equal(value)
+    }
+}
+
+@suite
+export class ObjectToMapTests {
+    @test
+    rewriteShouldReturnEmptyMapForEmptyObject(){
+        // Arrange
+        const obj = {}
+
+        // Act
+        const result = Maps.rewriteObjectAsMap(obj)
+
+        // Assert
+        expect(result).to.be.an.instanceOf(Map)
+        expect(result).to.be.empty
+        expect(result.size).to.equal(0)
+    }
+
+    @test
+    rewriteShouldReturnNonEmptyMapForNonEmptyObject(){
+        // Arrange
+        const obj: { [key: string]: any } = {}
+        const key = "hello"
+        const value = "world"
+        obj[key] = value
+
+        // Act
+        const result = Maps.rewriteObjectAsMap(obj)
+
+        // Assert
+        expect(result).to.be.an.instanceOf(Map)
+        expect(result).to.be.not.empty
+        expect(result.size).to.equal(1)
+        expect(result.has(key)).to.be.true
+        expect(result.get(key)).to.equal(value)
+    }
+
+    @test
+    rewriteShouldNotAddUndefined(){
+        // Arrange
+        const obj: { [key: string]: any } = {}
+        const key = "thisOneIsUndefined"
+        const value = undefined
+        obj[key] = value
+
+        // Act
+        const result = Maps.rewriteObjectAsMap(obj)
+
+        // Assert
+        expect(result).to.be.an.instanceOf(Map)
+        expect(result).to.be.empty
+        expect(result.size).to.equal(0)
+        expect(result.has(key)).to.be.false
+    }
+
+    @test
+    rewriteWithExplicitUndefinedShouldAddUndefinedProperty(){
+        // Arrange
+        const obj: { [key: string]: any } = {}
+        const key = "thisOneIsUndefined"
+        const value = undefined
+        obj[key] = value
+
+        // Act
+        const result = Maps.rewriteObjectAsMap(obj, undefined, false)
+
+        // Assert
+        expect(result).to.be.an.instanceOf(Map)
+        expect(result).to.be.not.empty
+        expect(result.size).to.equal(1)
+        expect(result.has(key)).to.be.true
+        expect(result.get(key)).to.equal(value)
     }
 }
