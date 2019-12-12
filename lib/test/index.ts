@@ -5,30 +5,98 @@ import { Async } from "../main/index"
 
 chai.use(chaiAsPromised)
 
+interface NonInitialisedSuite {}
+
+type TestOnlySuite = Required<PreTestOnlySuite>
+
+type TestFunction = (instance: Class) => mocha.Test
+
+interface PreTestOnlySuite {
+    tests?: Set<TestFunction>
+}
+
+type Suite = Required<PreSuite>
+
+interface PreSuite {
+    suite?: mocha.Suite
+    instance?: Class
+}
+
 type ConstructorType<R = {}> = { new (...args: any[]): R }
 
 type Class = { [key: string]: (...args: any[]) => void | Promise<void> }
 
 type ClassConstructor = ConstructorType<Class>
 
-function initSuite<TFunction extends ClassConstructor>(constructor: TFunction): TFunction & { suite: mocha.Suite, instance: Class } {
-    const c = (constructor as TFunction & { suite?: mocha.Suite, instance?: Class })
-    c.suite = c.suite ?? mocha.describe(c.name.replace(/^[a-z]|[A-Z_]/g, (v, i) => i === 0 ? v.toUpperCase() : v === "_" ? " " : " " + v.toLowerCase()), () => {})
-    c.instance = new c(c.suite)
-    return c as TFunction & { suite: mocha.Suite, instance: Class }
+type AnySuite = (NonInitialisedSuite | TestOnlySuite | Suite) & ClassConstructor
+
+function getSuite(constructor: Function): AnySuite {
+    return constructor as unknown as AnySuite
 }
 
-export const suite: ClassDecorator = <T extends Function>(constructor: T): T => initSuite(constructor as T & ClassConstructor)
+function addTestToSuite(test: TestFunction, suite: AnySuite) {
+    if("suite" in suite) {
+        suite.suite.addTest(test(suite.instance))
+        return
+    } else if (!("tests" in suite)) {
+        (suite as PreTestOnlySuite).tests = (suite as PreTestOnlySuite).tests ?? new Set()
+    }
 
-export const test: MethodDecorator = (target: Object, propertyKey: string | symbol): void => {
+    (suite as TestOnlySuite).tests.add(test)
+}
+
+function camelCaseLikeStyleToWords(text: string): string {
+    return text.replace(/^[a-z]|[A-Z_]/g, (v, i) => i === 0 ? v.toUpperCase() : v === "_" ? " " : " " + v.toLowerCase())
+}
+
+function initSuite(suite: AnySuite, customName: string | null = null): Suite {
+    let tests: Set<TestFunction> = new Set()
+
+    if ("suite" in suite) {
+        return suite
+    } else if("tests" in suite) {
+        tests = suite.tests
+        delete suite.tests
+    }
+
+    const name = customName ?? camelCaseLikeStyleToWords(suite.name)
+    const mochaSuite = mocha.describe(name, () => {})
+    const instance = new suite(mochaSuite);
+
+    (suite as PreSuite).suite = mochaSuite;
+    (suite as PreSuite).instance = instance
+
+    const s = suite as Suite & ClassConstructor
+
+    for(const test of tests) s.suite.addTest(test(s.instance))
+
+    return s
+}
+
+function initTest(target: Object, propertyKey: string | symbol, customName: string | null = null): void {
     const key = typeof propertyKey === "string" ? propertyKey : propertyKey.toString()
-    const c = initSuite(target.constructor as ClassConstructor)
-    const name = key.replace(/^[a-z]|[A-Z_]/g, (v, i) => i === 0 ? v.toUpperCase() : v === "_" ? " " : " " + v.toLowerCase())
-    c.suite.addTest(new mocha.Test(name, (done: mocha.Done) => { Async.wrapInPromise(c.instance[key])().then(done, done) }))
+    const name = customName ?? camelCaseLikeStyleToWords(key)
+    addTestToSuite((instance: Class) => new mocha.Test(name, (done: mocha.Done) => { Async.wrapInPromise(instance[key])().then(done, done) }), getSuite(target.constructor))
 }
 
-export const Suite = suite
+export const Suite: ClassDecorator = <TFunction extends Function>(constructor: TFunction) => {
+    initSuite(getSuite(constructor))
+    return constructor
+}
 
-export const Test = test
+export const NamedSuite: (name: string) => ClassDecorator = (name) => {
+    return (constructor) => {
+        initSuite(getSuite(constructor), name)
+        return constructor
+    }
+}
+
+export const Test: MethodDecorator = (target, propertyKey, _) => initTest(target, propertyKey)
+
+export const NamedTest: (name: string) => MethodDecorator = (name) => (target, propertyKey) => initTest(target, propertyKey, name)
+
+export const suite = Suite
+
+export const test = Test
 
 export const expect = chai.expect

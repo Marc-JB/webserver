@@ -1,9 +1,9 @@
-import { suite, test, expect } from "./index"
+import { Suite, Test, NamedSuite, NamedTest, expect } from "./index"
 import { Maps } from "../main/index"
 
-@suite
+@NamedSuite("Map -> Object tests")
 export class MapToObjectTests {
-    @test
+    @NamedTest("rewrite should return {} for empty Map")
     rewriteShouldReturnEmptyObjectForEmptyMap(){
         // Arrange
         const map = new Map()
@@ -16,7 +16,7 @@ export class MapToObjectTests {
         expect(result).to.be.empty
     }
 
-    @test
+    @Test
     rewriteShouldReturnNonEmptyObjectForNonEmptyMap(){
         // Arrange
         const map = new Map()
@@ -34,7 +34,7 @@ export class MapToObjectTests {
         expect(result[key]).to.equal(value)
     }
 
-    @test
+    @Test
     rewriteShouldNotAddUndefined(){
         // Arrange
         const map = new Map()
@@ -51,7 +51,7 @@ export class MapToObjectTests {
         expect(result).to.not.have.property(key)
     }
 
-    @test
+    @Test
     rewriteWithExplicitUndefinedShouldAddUndefinedProperty(){
         // Arrange
         const map = new Map()
@@ -69,7 +69,7 @@ export class MapToObjectTests {
         expect(result[key]).to.equal(value)
     }
 
-    @test
+    @Test
     rewriteWithCustomObjectShouldAddPropertiesCorrectly(){
         // Arrange
         const obj: { [key: string]: any } = {}
@@ -99,9 +99,9 @@ export class MapToObjectTests {
     }
 }
 
-@suite
+@Suite
 export class ObjectToMapTests {
-    @test
+    @Test
     rewriteShouldReturnEmptyMapForEmptyObject(){
         // Arrange
         const obj = {}
@@ -115,7 +115,7 @@ export class ObjectToMapTests {
         expect(result.size).to.equal(0)
     }
 
-    @test
+    @Test
     rewriteShouldReturnNonEmptyMapForNonEmptyObject(){
         // Arrange
         const obj: { [key: string]: any } = {}
@@ -134,7 +134,7 @@ export class ObjectToMapTests {
         expect(result.get(key)).to.equal(value)
     }
 
-    @test
+    @Test
     rewriteShouldNotAddUndefined(){
         // Arrange
         const obj: { [key: string]: any } = {}
@@ -152,7 +152,7 @@ export class ObjectToMapTests {
         expect(result.has(key)).to.be.false
     }
 
-    @test
+    @Test
     rewriteWithExplicitUndefinedShouldAddUndefinedProperty(){
         // Arrange
         const obj: { [key: string]: any } = {}
@@ -171,7 +171,7 @@ export class ObjectToMapTests {
         expect(result.get(key)).to.equal(value)
     }
 
-    @test
+    @Test
     rewriteWithCustomMapShouldAddPropertiesCorrectly(){
         // Arrange
         const map: Map<string, any> = new Map()
