@@ -6,7 +6,8 @@ export namespace Async {
     export function wrapInPromise<T extends (...args: any) => MaybeAsync<any>>(fn: T) {
         return (...args: Parameters<T>): Promise<PromiseResultType<ReturnType<T>>> => {
             try {
-                const result = fn(args)
+                // @ts-ignore
+                const result = fn(...args)
                 return result instanceof Promise ? result : Promise.resolve(result)
             } catch (err) {
                 return Promise.reject(err)
