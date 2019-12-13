@@ -1,4 +1,4 @@
-import { Suite, Test, NamedSuite, NamedTest, expect } from "./index"
+import { Test, NamedSuite, NamedTest, expect } from "./index"
 import { Maps } from "../main/index"
 
 @NamedSuite("Map -> Object tests")
@@ -99,9 +99,9 @@ export class MapToObjectTests {
     }
 }
 
-@Suite
+@NamedSuite("Object -> Map tests")
 export class ObjectToMapTests {
-    @Test
+    @NamedTest("rewrite should return empty Map for {}")
     rewriteShouldReturnEmptyMapForEmptyObject(){
         // Arrange
         const obj = {}
