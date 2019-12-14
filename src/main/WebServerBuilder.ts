@@ -1,6 +1,6 @@
 import { promises as fs } from "fs"
 import http2 from "http2"
-import { Server } from "./Server"
+import { WebServer } from "./WebServer"
 
 type CertificateType = string | Buffer | fs.FileHandle
 
@@ -37,7 +37,7 @@ export class WebServerBuilder {
         return this
     }
 
-    async build(): Promise<Server> {
+    async build(): Promise<WebServer> {
         let cert: string | Buffer | null = null
         let key: string | Buffer | null = null
 
@@ -66,9 +66,9 @@ export class WebServerBuilder {
         await Promise.all(p)
 
         if (cert === null && key === null) {
-            return new Server(http2.createServer(), this.developmentMessagesEnabled)
+            return new WebServer(http2.createServer(), this.developmentMessagesEnabled)
         } else if (cert !== null && key !== null) {
-            return new Server(http2.createSecureServer({ allowHTTP1: true, cert, key }), this.developmentMessagesEnabled)
+            return new WebServer(http2.createSecureServer({ allowHTTP1: true, cert, key }), this.developmentMessagesEnabled)
         } else {
             throw new Error("Key and cert must be both set or unset")
         }

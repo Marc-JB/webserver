@@ -1,12 +1,12 @@
 import { suite, test, expect } from "../../lib/test/index"
-import { Endpoint, Server } from "../main/index"
+import { Endpoint, WebServer } from "../main/index"
 
 @suite
 export class EndpointTests {
     @test
     async createEndpointAtPathShouldAttachEndpointToRightPath() {
         // Arrange
-        const server = await new Server.Builder().enableDevelopmentMessages().build()
+        const server = await new WebServer.Builder().enableDevelopmentMessages().build()
         const endpoint1 = new Endpoint("/resource", server)
 
         // Act

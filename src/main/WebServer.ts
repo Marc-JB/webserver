@@ -5,7 +5,7 @@ import { HttpRequest } from "./HttpRequest"
 import { Maps } from "../../lib/main/index"
 import { WebServerBuilder } from "./WebServerBuilder"
 
-export class Server implements EndpointParent {
+export class WebServer implements EndpointParent {
     public fullPath: string = ""
 
     public readonly childEndpoints: Set<Endpoint> = new Set()
