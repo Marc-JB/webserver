@@ -1,6 +1,11 @@
 import { AsyncRequestHandlerCallback, Endpoint, ResponseObjectType } from "./Endpoint"
 import { HttpRequestInfWithParams } from "./HttpRequestInf"
 
+const urlValueMatchRegExp = (path: string) =>
+    new RegExp("^" + path.replace(/{[^\/{}]+}/g, `([^\/]+)`).replace(/\//g, `\\/`) + "(\\?.*|)$")
+
+const urlKeyMatchRegExp = /{([^\/{}]+)}/g
+
 export class RequestHandler {
     constructor(
         public readonly path: string,
@@ -9,6 +14,9 @@ export class RequestHandler {
         public readonly parent: Endpoint
     ){}
 
+    /**
+     * @returns the path this handler is attached to, including the path of its parent (and parent of its parent, etc.)
+     */
     public get fullPath(): string {
         const parentPath = this.parent.fullPath.split("/").filter(it => it !== "").join("/")
         const thisPath = this.path.split("/").filter(it => it !== "").join("/")
@@ -19,15 +27,20 @@ export class RequestHandler {
         return this.handler(request)
     }
 
-    public matchUrl(url: string): { matches: false } | { matches: true, params: { [key: string]: string } } {
-        const urlMatches = url.match(new RegExp("^" + this.fullPath.replace(/{[^\/{}]+}/g, `([^\/]+)`).replace(/\//g, `\\/`) + "(\\?.*|)$"))
-        if(!urlMatches) return { matches: false }
+    public isMatch(url: string): boolean {
+        return urlValueMatchRegExp(this.fullPath).test(url)
+    }
 
-        const matches = this.fullPath.match(/{([^\/{}]+)}/g) || []
-        const params: { [key: string]: string } = {}
+    public getParams(url: string): ReadonlyMap<string, string> {
+        if(!this.isMatch(url)) return new Map()
 
-        matches.map(match => match.substring(1, match.length - 1)).forEach((match, i) => params[match] = urlMatches[i + 1])
+        const values = url.match(urlValueMatchRegExp(this.fullPath)) ?? []
+        const params: Map<string, string> = new Map()
 
-        return { matches: true, params }
+        this.fullPath.match(urlKeyMatchRegExp)
+            ?.map(key => key.substring(1, key.length - 1))
+            ?.forEach((key, i) => params.set(key, values[i + 1]))
+
+        return params
     }
 }

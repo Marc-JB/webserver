@@ -143,21 +143,37 @@ export class Endpoint implements EndpointParent {
     }
 
     public async onRequest(url: string, request: HttpRequestInf): Promise<ResponseObjectType> {
+        /**
+         * Note that async functions in the function are not resolved in parallel.
+         * This is because users can modify the execution order of middleware and handlers.
+         *
+         * Example:
+         * ```
+         * // Parses the "content-type" header into "json", "plain", "html", etc.
+         * endpoint.addRequestMiddleware(contentTypeParserMiddleware)
+         *
+         * // Parses the body if the result of contentTypeParserMiddleware equals "json"
+         * endpoint.addRequestMiddleware(jsonParserMiddleware)
+         * ```
+         * `jsonParserMiddleware` depends on the result of `contentTypeParserMiddleware`.
+         * When using parallel execution, the result of `contentTypeParserMiddleware` might not
+         * be available yet when `jsonParserMiddleware` requests it.
+         */
+
         let responseObject: ResponseObjectType = null
 
         // Request middleware
-        for (const requestMiddleware of this.requestMiddleware) {
+        for (const requestMiddleware of this.requestMiddleware)
             await requestMiddleware(request)
-        }
 
         // Loop trough child endpoints to check if they have a reponse ready
         for(const endpoint of this.childEndpoints) {
             if(url.startsWith(endpoint.fullPath)) {
                 const r = await endpoint.onRequest(url, request)
                 if(r !== null) {
-                    if(responseObject !== null) {
+                    if(responseObject !== null)
                         throw new Error(`${url} is registered on 2 different endpoints!`)
-                    }
+
                     responseObject = r
                 }
             }
@@ -165,13 +181,15 @@ export class Endpoint implements EndpointParent {
 
         // Loop trough own handlers to check if they have a response ready
         for(const handler of this.handlers) {
-            const matchResult = handler.matchUrl(url)
-            if (matchResult.matches && request.method.toUpperCase() === handler.method) {
-                if(responseObject !== null) {
+            if (handler.isMatch(url) && request.method.toUpperCase() === handler.method) {
+                if(responseObject !== null)
                     throw new Error(`[${request.method.toUpperCase()}: ${url}] is registered on 2 different endpoints!`)
-                }
+
                 const requestWithParams = HttpRequestWithParamsInternal.fromHttpRequest(request)
-                Maps.rewriteObjectAsMap(matchResult.params, requestWithParams.params)
+
+                for(const [key, value] of handler.getParams(url))
+                    requestWithParams.params.set(key, value)
+
                 responseObject = await handler.invoke(requestWithParams)
                 HttpRequestWithParamsInternal.removeParams(requestWithParams)
             }
@@ -179,9 +197,13 @@ export class Endpoint implements EndpointParent {
 
         // Response middleware
         for(const responseMiddleware of this.responseMiddleware) {
-            if(responseObject !== null) {
+            /**
+             * The following null check was placed inside the loop,
+             * because the middleware that is called here can return null,
+             * thus modifying the responseObject to be null.
+             */
+            if(responseObject !== null)
                 responseObject = await responseMiddleware(request, responseObject)
-            }
         }
 
         return responseObject
