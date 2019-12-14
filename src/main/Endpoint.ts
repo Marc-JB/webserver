@@ -1,4 +1,4 @@
-import { Async, Maps } from "../../lib/main/index"
+import { Async } from "../../lib/main/index"
 import { EndpointParent } from "./EndpointParentInf"
 import { HttpRequest, HttpRequestWithParamsInternal } from "./HttpRequest"
 import { HttpRequestInf, HttpRequestInfWithParams } from "./HttpRequestInf"
