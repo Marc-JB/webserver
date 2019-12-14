@@ -3,6 +3,7 @@ import { Endpoint, ResponseObjectType } from "./Endpoint"
 import { EndpointParent } from "./EndpointParentInf"
 import { HttpRequest } from "./HttpRequest"
 import { Maps } from "../../lib/main/index"
+import { WebServerBuilder } from "./WebServerBuilder"
 
 export class Server implements EndpointParent {
     public fullPath: string = ""
@@ -86,5 +87,9 @@ export class Server implements EndpointParent {
         const endpoint = new Endpoint(route, this)
         this.childEndpoints.add(endpoint)
         return endpoint
+    }
+
+    static get Builder(): typeof WebServerBuilder {
+        return WebServerBuilder
     }
 }

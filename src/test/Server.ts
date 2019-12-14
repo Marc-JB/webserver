@@ -1,13 +1,13 @@
 import { suite, test, expect } from "../../lib/test/index"
-import { WebServerBuilder } from "../main/index"
+import { Server } from "../main/index"
 
 @suite
 export class ServerTests {
     @test
     async connectShouldThrowErrorWhenPortIsInUse(){
         // Arrange
-        const server1 = await new WebServerBuilder().build()
-        const server2 = await new WebServerBuilder().build()
+        const server1 = await new Server.Builder().enableDevelopmentMessages().build()
+        const server2 = await new Server.Builder().enableDevelopmentMessages().build()
 
         await server1.connect(8080)
 
