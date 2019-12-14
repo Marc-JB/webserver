@@ -1,4 +1,4 @@
-import { Http2Server } from "http2"
+import { Http2Server, Http2ServerRequest, Http2ServerResponse } from "http2"
 import { Endpoint, ResponseObjectType } from "./Endpoint"
 import { EndpointParent } from "./EndpointParentInf"
 import { HttpRequest } from "./HttpRequest"
@@ -6,7 +6,7 @@ import { Maps } from "../../lib/main/index"
 import { WebServerBuilder } from "./WebServerBuilder"
 
 export class WebServer implements EndpointParent {
-    public fullPath: string = ""
+    public readonly fullPath: string = ""
 
     public readonly childEndpoints: Set<Endpoint> = new Set()
 
@@ -17,58 +17,62 @@ export class WebServer implements EndpointParent {
     }
 
     constructor(protected readonly server: Http2Server, protected readonly developmentMessagesEnabled: boolean = false) {
-        server.on("request", async (req, res) => {
-            try {
-                const request = new HttpRequest(req)
-                const url = (req.url as string).split("/").filter(it => it !== "").join("/")
+        server.on("request", async (req, res) => this.onRequest(req, res))
+    }
 
-                let responseObject: ResponseObjectType | null = null
+    private async onRequest(req: Http2ServerRequest, res: Http2ServerResponse) {
+        try {
+            const request = new HttpRequest(req)
+            const url = (req.url as string).split("/").filter(it => it !== "").join("/")
 
-                // Loop trough child endpoints to check if they have a reponse ready
-                for(const endpoint of this.childEndpoints) {
-                    if(url.startsWith(endpoint.fullPath)) {
-                        const r = await endpoint.onRequest(url, request)
-                        if(r !== null) {
-                            if(responseObject !== null) {
-                                throw new Error(`${url} is registered on 2 different endpoints!`)
-                            }
-                            responseObject = r
-                        }
+            let responseObject: ResponseObjectType | null = null
+
+            // Loop trough child endpoints to check if they have a reponse ready
+            for(const endpoint of this.childEndpoints) {
+                if(url.startsWith(endpoint.fullPath)) {
+                    const r = await endpoint.onRequest(url, request)
+                    if(r !== null) {
+                        if(responseObject !== null)
+                            throw new Error(`${url} is registered on 2 different endpoints!`)
+
+                        responseObject = r
                     }
                 }
-
-                if(responseObject === null) {
-                    res.writeHead(404)
-                    res.end()
-                } else {
-                    if("code" !in responseObject) {
-                        throw new Error("Invalid response, response doesn't contain HTTP status code")
-                    }
-                    if("body" !in responseObject || typeof responseObject.body !== "string") {
-                        throw new Error("Invalid response, response doesn't contain HTTP a plaintext body")
-                    }
-
-                    res.writeHead(responseObject.code, responseObject.headers !== undefined ? Maps.rewriteMapAsObject(responseObject.headers) : undefined)
-                    res.end(responseObject.body)
-                }
-            } catch (error) {
-                res.writeHead(500)
-                if(this.developmentMessagesEnabled) {
-                    res.end(JSON.stringify(error))
-                } else {
-                    res.end()
-                }
-                console.error(error)
             }
-        })
+
+            if(responseObject === null) {
+                res.writeHead(404)
+                res.end()
+            } else {
+                if(!("code" in responseObject))
+                    throw new Error("Invalid response, response doesn't contain HTTP status code")
+
+                if(!("body" in responseObject) || typeof responseObject.body !== "string")
+                    throw new Error("Invalid response, response doesn't contain HTTP a plaintext body")
+
+                res.writeHead(responseObject.code, responseObject.headers !== undefined ? Maps.rewriteMapAsObject(responseObject.headers) : undefined)
+                res.end(responseObject.body)
+            }
+        } catch (error) {
+            res.writeHead(500)
+
+            if(this.developmentMessagesEnabled) res.end(JSON.stringify(error))
+            else res.end()
+
+            console.error(error)
+        }
     }
 
     public async connect(portOrPath: number | string): Promise<void> {
-        await new Promise((resolve, reject) => {
+        await this.listen(portOrPath)
+        this._instances.add(portOrPath)
+    }
+
+    private listen(portOrPath: number | string): Promise<void> {
+        return new Promise((resolve, reject) => {
             this.server.once("error", (error: Error) => reject(error))
             this.server.listen(portOrPath, () => resolve())
         })
-        this._instances.add(portOrPath)
     }
 
     public close() {
