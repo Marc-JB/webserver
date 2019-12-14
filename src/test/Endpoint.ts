@@ -7,10 +7,10 @@ export class EndpointTests {
     async createEndpointAtPathShouldAttachEndpointToRightPath() {
         // Arrange
         const server = await new WebServer.Builder().enableDevelopmentMessages().build()
-        const endpoint1 = new Endpoint("/resource", server)
+        const endpoint1 = new Endpoint("/resource/", server)
 
         // Act
-        const endpoint2 = endpoint1.createEndpointAtPath("/subresource")
+        const endpoint2 = endpoint1.createEndpointAtPath("/subresource/")
 
         // Assert
         expect(endpoint1.fullPath).to.equal("resource")
