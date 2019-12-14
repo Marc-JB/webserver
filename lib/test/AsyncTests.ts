@@ -12,9 +12,10 @@ export class AsyncTests {
         const wrapped = Async.wrapInPromise(asyncFunction)
 
         // Assert
-        expect(wrapped(2, 3)).to.be.an.instanceOf(Promise)
-        await expect(wrapped(2, 3)).to.eventually.be.fulfilled
-        await expect(wrapped(2, 3)).to.eventually.equal(5)
+        const promise = wrapped(2, 3)
+        expect(promise).to.be.an.instanceOf(Promise)
+        await expect(promise).to.eventually.be.fulfilled
+        await expect(promise).to.eventually.equal(5)
     }
 
     @Test
@@ -26,9 +27,10 @@ export class AsyncTests {
         const wrapped = Async.wrapInPromise(syncFunction)
 
         // Assert
-        expect(wrapped(2, 3)).to.be.an.instanceOf(Promise)
-        await expect(wrapped(2, 3)).to.eventually.be.fulfilled
-        await expect(wrapped(2, 3)).to.eventually.equal(5)
+        const promise = wrapped(2, 3)
+        expect(promise).to.be.an.instanceOf(Promise)
+        await expect(promise).to.eventually.be.fulfilled
+        await expect(promise).to.eventually.equal(5)
     }
 
     @Test
@@ -40,7 +42,8 @@ export class AsyncTests {
         const wrapped = Async.wrapInPromise(syncFunction)
 
         // Assert
-        expect(wrapped("world")).to.be.an.instanceOf(Promise)
-        await expect(wrapped("world")).to.eventually.be.rejectedWith(Error, "Hello world!")
+        const promise = wrapped("world")
+        expect(promise).to.be.an.instanceOf(Promise)
+        await expect(promise).to.eventually.be.rejectedWith(Error, "Hello world!")
     }
 }
