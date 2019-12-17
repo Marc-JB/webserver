@@ -40,26 +40,34 @@ export class WebServer implements EndpointParent {
                 }
             }
 
-            if(responseObject === null) {
-                res.writeHead(404)
-                res.end()
-            } else {
-                if(!("code" in responseObject))
-                    throw new Error("Invalid response, response doesn't contain HTTP status code")
-
-                if(!("body" in responseObject) || typeof responseObject.body !== "string")
-                    throw new Error("Invalid response, response doesn't contain HTTP a plaintext body")
-
-                res.writeHead(responseObject.code, responseObject.headers !== undefined ? Maps.rewriteMapAsObject(responseObject.headers) : undefined)
-                res.end(responseObject.body)
-            }
+            this.writeResponse(responseObject, res)
         } catch (error) {
-            res.writeHead(500)
-
-            if(this.developmentMessagesEnabled) res.end(JSON.stringify(error))
-            else res.end()
+            this.writeResponse({
+                code: 500,
+                body: this.developmentMessagesEnabled ? JSON.stringify(error) : null
+            }, res)
 
             console.error(error)
+        }
+    }
+
+    private writeResponse(responseObject: ResponseObjectType | null, res: Http2ServerResponse): Promise<void> {
+        if(responseObject === null) {
+            res.writeHead(404)
+            return new Promise(resolve => res.end(() => resolve()))
+        } else {
+            if(!("code" in responseObject))
+                throw new Error("Invalid response, response doesn't contain HTTP status code")
+
+            if(!("body" in responseObject) || (typeof responseObject.body !== "string" && responseObject.body !== null))
+                throw new Error("Invalid response, response doesn't contain a plaintext body")
+
+            res.writeHead(responseObject.code, responseObject.headers !== undefined ? Maps.rewriteMapAsObject(responseObject.headers) : undefined)
+
+            if(responseObject.body === null)
+                return new Promise(resolve => res.end(() => resolve()))
+            else
+                return new Promise(resolve => res.end(responseObject.body, () => resolve()))
         }
     }
 
