@@ -17,7 +17,7 @@ export class WebServer implements EndpointParent {
     }
 
     constructor(protected readonly server: Http2Server, protected readonly developmentMessagesEnabled: boolean = false) {
-        server.on("request", async (req, res) => this.onRequest(req, res))
+        server.on("request", (req, res) => this.onRequest(req, res))
     }
 
     private async onRequest(req: Http2ServerRequest, res: Http2ServerResponse) {
@@ -40,14 +40,14 @@ export class WebServer implements EndpointParent {
                 }
             }
 
-            this.writeResponse(responseObject, res)
+            await this.writeResponse(responseObject, res)
         } catch (error) {
-            this.writeResponse({
+            console.error(error)
+
+            await this.writeResponse({
                 code: 500,
                 body: this.developmentMessagesEnabled ? JSON.stringify(error) : null
             }, res)
-
-            console.error(error)
         }
     }
 
