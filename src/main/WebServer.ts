@@ -1,5 +1,5 @@
 import { Http2Server, Http2ServerRequest, Http2ServerResponse } from "http2"
-import { Endpoint, ResponseObjectType, ReadonlyResponseInf } from "./Endpoint"
+import { Endpoint, ReadonlyResponseInf } from "./Endpoint"
 import { EndpointParent } from "./EndpointParentInf"
 import { HttpRequest } from "./HttpRequest"
 import { Maps } from "../../lib/main/index"
@@ -26,7 +26,7 @@ export class WebServer implements EndpointParent {
             const request = new HttpRequest(req)
             const url = (req.url as string).split("/").filter(it => it !== "").join("/")
 
-            let responseObject: ResponseObjectType | null = null
+            let responseObject: ReadonlyResponseInf | null = null
 
             // Loop trough child endpoints to check if they have a reponse ready
             for(const endpoint of this.childEndpoints) {

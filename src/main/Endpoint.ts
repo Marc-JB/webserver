@@ -4,7 +4,7 @@ import { HttpRequest, HttpRequestWithParamsInternal } from "./HttpRequest"
 import { HttpRequestInf, HttpRequestInfWithParams } from "./HttpRequestInf"
 import { RequestHandler } from "./RequestHandler"
 
-export interface ResponseInf {
+export interface ResponseInf extends ReadonlyResponseInf {
     code: number
     body: string | null
     headers: Map<string, number | string | string[]>
@@ -16,15 +16,14 @@ export interface ReadonlyResponseInf {
     readonly headers: ReadonlyMap<string, number | string | string[]>
 }
 
-export type ResponseObjectType = ResponseInf | null
-export type RequestHandlerCallback = (request: Readonly<HttpRequestInfWithParams>) => Async.MaybeAsync<ResponseObjectType>
-export type AsyncRequestHandlerCallback = (request: Readonly<HttpRequestInfWithParams>) => Promise<ResponseObjectType>
+export type RequestHandlerCallback = (request: Readonly<HttpRequestInfWithParams>) => Async.MaybeAsync<ResponseInf | null>
+export type AsyncRequestHandlerCallback = (request: Readonly<HttpRequestInfWithParams>) => Promise<ResponseInf | null>
 
 export class Endpoint implements EndpointParent {
     public readonly handlers: Set<RequestHandler> = new Set()
     public readonly childEndpoints: Set<Endpoint> = new Set()
     public readonly requestMiddleware: Set<((request: HttpRequestInf) => Promise<void>)> = new Set()
-    public readonly responseMiddleware: Set<((request: HttpRequestInf, response: ResponseObjectType) => Promise<ResponseObjectType>)> = new Set()
+    public readonly responseMiddleware: Set<((request: HttpRequestInf, response: ResponseInf | null) => Promise<ResponseInf | null>)> = new Set()
 
     constructor(
         public readonly path: string,
@@ -150,11 +149,11 @@ export class Endpoint implements EndpointParent {
      * Adds the middleware to this endpoint
      * @param middleware a function that takes a request and modifies it
      */
-    public addResponseMiddleware(middleware: (request: Readonly<HttpRequest>, response: ResponseObjectType) => ResponseObjectType | Promise<ResponseObjectType>){
+    public addResponseMiddleware(middleware: (request: Readonly<HttpRequest>, response: ResponseInf | null) => Async.MaybeAsync<ResponseInf | null>){
         this.responseMiddleware.add(Async.wrapInPromise(middleware))
     }
 
-    public async onRequest(url: string, request: HttpRequestInf): Promise<ResponseObjectType> {
+    public async onRequest(url: string, request: HttpRequestInf): Promise<ResponseInf | null> {
         /**
          * Note that async functions in the function are not resolved in parallel.
          * This is because users can modify the execution order of middleware and handlers.
@@ -172,7 +171,7 @@ export class Endpoint implements EndpointParent {
          * be available yet when `jsonParserMiddleware` requests it.
          */
 
-        let responseObject: ResponseObjectType = null
+        let responseObject: ResponseInf | null = null
 
         // Request middleware
         for (const requestMiddleware of this.requestMiddleware)
