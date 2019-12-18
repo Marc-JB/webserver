@@ -1,9 +1,10 @@
 import { Http2Server, Http2ServerRequest, Http2ServerResponse } from "http2"
-import { Endpoint, ResponseObjectType } from "./Endpoint"
+import { Endpoint, ResponseObjectType, ReadonlyResponseInf } from "./Endpoint"
 import { EndpointParent } from "./EndpointParentInf"
 import { HttpRequest } from "./HttpRequest"
 import { Maps } from "../../lib/main/index"
 import { WebServerBuilder } from "./WebServerBuilder"
+import { ResponseBuilder } from "./ResponseBuilder"
 
 export class WebServer implements EndpointParent {
     public readonly fullPath: string = ""
@@ -40,35 +41,26 @@ export class WebServer implements EndpointParent {
                 }
             }
 
-            await this.writeResponse(responseObject, res)
+            await this.writeResponse(responseObject ?? new ResponseBuilder().setStatus(404).build(), res)
         } catch (error) {
             console.error(error)
 
-            await this.writeResponse({
-                code: 500,
-                body: this.developmentMessagesEnabled ? JSON.stringify(error) : null
-            }, res)
+            const response = new ResponseBuilder()
+                .setStatus(500)
+                .setBody(this.developmentMessagesEnabled ? JSON.stringify(error) : null)
+                .build()
+
+            await this.writeResponse(response, res)
         }
     }
 
-    private writeResponse(responseObject: ResponseObjectType | null, res: Http2ServerResponse): Promise<void> {
-        if(responseObject === null) {
-            res.writeHead(404)
+    private writeResponse(responseObject: ReadonlyResponseInf, res: Http2ServerResponse): Promise<void> {
+        res.writeHead(responseObject.code, Maps.rewriteMapAsObject(responseObject.headers))
+
+        if(responseObject.body === null)
             return new Promise(resolve => res.end(() => resolve()))
-        } else {
-            if(!("code" in responseObject))
-                throw new Error("Invalid response, response doesn't contain HTTP status code")
-
-            if(!("body" in responseObject) || (typeof responseObject.body !== "string" && responseObject.body !== null))
-                throw new Error("Invalid response, response doesn't contain a plaintext body")
-
-            res.writeHead(responseObject.code, responseObject.headers !== undefined ? Maps.rewriteMapAsObject(responseObject.headers) : undefined)
-
-            if(responseObject.body === null)
-                return new Promise(resolve => res.end(() => resolve()))
-            else
-                return new Promise(resolve => res.end(responseObject.body, () => resolve()))
-        }
+        else
+            return new Promise(resolve => res.end(responseObject.body as string, () => resolve()))
     }
 
     public async connect(portOrPath: number | string): Promise<void> {

@@ -4,7 +4,19 @@ import { HttpRequest, HttpRequestWithParamsInternal } from "./HttpRequest"
 import { HttpRequestInf, HttpRequestInfWithParams } from "./HttpRequestInf"
 import { RequestHandler } from "./RequestHandler"
 
-export type ResponseObjectType = { code: number, body?: any, headers?: Map<string, number | string | string[]> } | null
+export interface ResponseInf {
+    code: number
+    body: string | null
+    headers: Map<string, number | string | string[]>
+}
+
+export interface ReadonlyResponseInf {
+    readonly code: number
+    readonly body: string | null
+    readonly headers: ReadonlyMap<string, number | string | string[]>
+}
+
+export type ResponseObjectType = ResponseInf | null
 export type RequestHandlerCallback = (request: Readonly<HttpRequestInfWithParams>) => Async.MaybeAsync<ResponseObjectType>
 export type AsyncRequestHandlerCallback = (request: Readonly<HttpRequestInfWithParams>) => Promise<ResponseObjectType>
 
