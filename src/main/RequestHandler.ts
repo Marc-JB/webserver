@@ -1,4 +1,4 @@
-import { AsyncRequestHandlerCallback, Endpoint, ResponseObjectType } from "./Endpoint"
+import { AsyncRequestHandlerCallback, Endpoint, ResponseInf } from "./Endpoint"
 import { HttpRequestInfWithParams } from "./HttpRequestInf"
 
 interface ParamMatchInf {
@@ -79,7 +79,7 @@ export class RequestHandler {
         return parentPath + "/" + thisPath
     }
 
-    public async invoke(request: Readonly<HttpRequestInfWithParams>): Promise<ResponseObjectType> {
+    public async invoke(request: Readonly<HttpRequestInfWithParams>): Promise<ResponseInf | null> {
         return this.handler(request)
     }
 
