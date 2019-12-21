@@ -29,7 +29,6 @@ export class SubscribersTest {
         expect(executedSubscribers).to.include("B")
     }
 
-
     @Test
     async subscribersListShouldBeRetainedProperly() {
         // Arrange
@@ -47,5 +46,24 @@ export class SubscribersTest {
         expect(executedSubscribers).to.have.lengthOf(4)
         expect(executedSubscribers).to.include("A")
         expect(executedSubscribers).to.include("B")
+    }
+
+    @Test
+    async argsShouldBePassedCorrectly() {
+        // Arrange
+        let result: [string, number] | null = null
+        const subs = new Subscribers()
+
+        subs.add((first: string, second: number) => {
+            result = [first, second]
+        })
+
+        // Act
+        await subs.notifyAll(true, "A", 5)
+
+        // Assert
+        expect(result).to.be.not.null
+        expect((result as unknown as [string, number])[0]).to.be.a("string").and.equal("A")
+        expect((result as unknown as [string, number])[1]).to.be.a("number").and.equal(5)
     }
 }
