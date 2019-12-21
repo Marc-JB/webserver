@@ -8,7 +8,7 @@ export class HttpRequestCore implements HttpRequestInfCore {
     public readonly method: string = this.request.method.toUpperCase()
     public readonly headers: ReadonlyMap<string, string | string[]> = Maps.rewriteObjectAsMap(this.request.headers)
 
-    private readonly _body = new Lazy(() => new StreamToPromise(this.request).getBody())
+    private readonly _body = new Lazy(() => new StreamToPromise(this.request).getResult())
 
     public get body(): Promise<string | null> {
         return this._body.value

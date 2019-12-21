@@ -1,4 +1,4 @@
-import { Subscribers } from "./Subscribers"
+import { Observable } from "./Observable"
 
 export namespace Async {
     /**
@@ -36,37 +36,33 @@ export namespace Async {
     }
 }
 
-enum StreamReadState {
-    NOT_STARTED, READING, DONE
-}
-
+/**
+ * Class used to read text from a stream into a promise
+ * Note: wrap the constructor call in a Lazy initialiser to delay the reading of the stream
+ */
 export class StreamToPromise {
-    protected state = StreamReadState.NOT_STARTED
-    protected subscribers = new Subscribers()
-    protected result: string | null = null
+    protected isDone = false
+    protected result = new Observable<string | null>(null)
 
-    constructor (protected readonly stream: { [Symbol.asyncIterator](): AsyncIterableIterator<string> }) {}
+    constructor (protected readonly stream: { [Symbol.asyncIterator](): AsyncIterableIterator<string> }) {
+        this.startReading()
+    }
 
-    protected async readStream(): Promise<void> {
+    protected async startReading() {
         let incomingData = ""
         let chunksRead = 0
-        this.state = StreamReadState.READING
         for await(const chunk of this.stream){
             incomingData += chunk
             chunksRead++
         }
-        this.result = chunksRead === 0 ? null : incomingData
-        this.state = StreamReadState.DONE
-        this.subscribers.notifyAll()
+        this.isDone = true
+        this.result.set(chunksRead === 0 ? null : incomingData)
     }
 
-    public async getBody(): Promise<string | null> {
-        if (this.state === StreamReadState.NOT_STARTED){
-            await this.readStream()
-        } else if (this.state === StreamReadState.READING){
-            await new Promise(resolve => { this.subscribers.add(resolve) })
-        }
-
-        return this.result
+    /**
+     * Returns a Promise with all text from the stream (null when stream is empty)
+     */
+    public getResult(): Promise<string | null> {
+        return this.isDone ? Promise.resolve(this.result.get()) : this.result.observeOncePromise()
     }
 }
