@@ -60,3 +60,23 @@ export namespace Maps {
         return obj
     }
 }
+
+export class Lazy<T> {
+    private isSet = false
+    private _value?: T
+
+    constructor(private readonly initialiser: () => T) {}
+
+    get isInitialized(): boolean {
+        return this.isSet
+    }
+
+    get value(): T {
+        if(!this.isSet) {
+            this.isSet = true
+            this._value = this.initialiser()
+        }
+
+        return this._value as T
+    }
+}

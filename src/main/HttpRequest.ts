@@ -2,7 +2,7 @@ import { Http2ServerRequest } from "http2"
 import { Readable as ReadableStream } from "stream"
 import { parse as parseUrl, UrlWithParsedQuery } from "url"
 import { HttpRequestInf, HttpRequestInfCore, HttpRequestInfWithParams, HttpRequestInfWithParamsInternal } from "./HttpRequestInf"
-import { Maps } from "../../lib/main/index"
+import { Maps, Lazy } from "../../lib/main/index"
 
 enum HttpBodyReadState {
     NOT_STARTED, READING, DONE
@@ -47,12 +47,10 @@ export class HttpRequestCore implements HttpRequestInfCore {
     public readonly method: string = this.request.method.toUpperCase()
     public readonly headers: ReadonlyMap<string, string | string[]> = Maps.rewriteObjectAsMap(this.request.headers)
 
-    private _body: Promise<string | null> | null = null
+    private readonly _body: Lazy<Promise<string | null>> = new Lazy(() => this.bodyReader.getBody())
+
     public get body(): Promise<string | null> {
-        if (this._body === null) {
-            this._body = this.bodyReader.getBody()
-        }
-        return this._body
+        return this._body.value
     }
 
     constructor(
