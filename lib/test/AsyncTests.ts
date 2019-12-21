@@ -6,7 +6,10 @@ export class AsyncTests {
     @Test
     async wrapInPromiseShouldReturnAsyncFunction() {
         // Arrange
-        const asyncFunction = async (i: number, n: number): Promise<number> => (i + n)
+        const asyncFunction = async (i: number, n: number) => {
+            await Async.sleep(25)
+            return i + n
+        }
 
         // Act
         const wrapped = Async.wrapInPromise(asyncFunction)
@@ -45,5 +48,19 @@ export class AsyncTests {
         const promise = wrapped("world")
         expect(promise).to.be.an.instanceOf(Promise)
         await expect(promise).to.eventually.be.rejectedWith(Error, "Hello world!")
+    }
+
+    @Test
+    async sleepSleepsCorrectly() {
+        // Arrange
+        const sleepTime = 60
+
+        // Act
+        const start = new Date().getTime()
+        await Async.sleep(sleepTime)
+        const end = new Date().getTime()
+
+        // Assert
+        expect(end - start).to.be.approximately(sleepTime, 20)
     }
 }

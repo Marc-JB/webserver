@@ -24,6 +24,10 @@ export namespace Async {
             }
         }
     }
+
+    export function sleep(timeInMilliSeconds: number): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, timeInMilliSeconds))
+    }
 }
 
 export namespace Maps {
@@ -62,10 +66,10 @@ export namespace Maps {
 }
 
 export class Lazy<T> {
-    private isSet = false
-    private _value?: T
+    protected isSet = false
+    protected _value?: T
 
-    constructor(private readonly initialiser: () => T) {}
+    constructor(protected readonly initialiser: () => T) {}
 
     get isInitialized(): boolean {
         return this.isSet
@@ -78,5 +82,21 @@ export class Lazy<T> {
         }
 
         return this._value as T
+    }
+}
+
+export class Subscribers {
+    protected list = new Set<() => any>()
+
+    add(func: () => any) {
+        this.list.add(func)
+    }
+
+    async notifyAll() {
+        await Promise.all(
+            Array.from(this.list).map(it => Async.wrapInPromise(it)())
+        )
+
+        this.list.clear()
     }
 }

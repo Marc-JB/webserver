@@ -2,7 +2,7 @@ import { Http2ServerRequest } from "http2"
 import { Readable as ReadableStream } from "stream"
 import { parse as parseUrl, UrlWithParsedQuery } from "url"
 import { HttpRequestInf, HttpRequestInfCore, HttpRequestInfWithParams, HttpRequestInfWithParamsInternal } from "./HttpRequestInf"
-import { Maps, Lazy } from "../../lib/main/index"
+import { Maps, Lazy, Subscribers } from "../../lib/main/index"
 
 enum HttpBodyReadState {
     NOT_STARTED, READING, DONE
@@ -10,7 +10,7 @@ enum HttpBodyReadState {
 
 class HttpBodyStreamWrapper {
     protected state = HttpBodyReadState.NOT_STARTED
-    protected queue: Set<() => void> = new Set()
+    protected subscribers = new Subscribers()
     protected result: string | null = null
 
     constructor (protected readonly request: ReadableStream) {}
@@ -25,17 +25,14 @@ class HttpBodyStreamWrapper {
         }
         this.result = chunksRead === 0 ? null : incomingData
         this.state = HttpBodyReadState.DONE
-        for(const promise of this.queue) {
-            promise()
-        }
-        this.queue.clear()
+        this.subscribers.notifyAll()
     }
 
     public async getBody(): Promise<string | null> {
         if (this.state === HttpBodyReadState.NOT_STARTED){
             await this.readStream()
         } else if (this.state === HttpBodyReadState.READING){
-            await new Promise(resolve => { this.queue.add(resolve) })
+            await new Promise(resolve => { this.subscribers.add(resolve) })
         }
 
         return this.result

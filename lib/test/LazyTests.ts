@@ -1,5 +1,5 @@
 import { Test, expect, Suite } from "./index"
-import { Lazy } from "../main/index"
+import { Lazy, Async } from "../main/index"
 
 @Suite
 export class LazyTests {
@@ -55,10 +55,11 @@ export class LazyTests {
         // Arrange
         const order = new Array()
 
-        const lazy = new Lazy(() => new Promise(resolve => {
+        const lazy = new Lazy(async() => {
+            await Async.sleep(25)
             order.push("B")
-            resolve(new Date().getTime())
-        }))
+            return new Date().getTime()
+        })
 
         // Act
         order.push("A")
