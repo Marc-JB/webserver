@@ -17,8 +17,10 @@ export class AsyncTests {
         // Assert
         const promise = wrapped(2, 3)
         expect(promise).to.be.an.instanceOf(Promise)
-        await expect(promise).to.eventually.be.fulfilled
-        await expect(promise).to.eventually.equal(5)
+        await Promise.all([
+            expect(promise).to.eventually.be.fulfilled,
+            expect(promise).to.eventually.equal(5)
+        ])
     }
 
     @Test
@@ -32,8 +34,10 @@ export class AsyncTests {
         // Assert
         const promise = wrapped(2, 3)
         expect(promise).to.be.an.instanceOf(Promise)
-        await expect(promise).to.eventually.be.fulfilled
-        await expect(promise).to.eventually.equal(5)
+        await Promise.all([
+            expect(promise).to.eventually.be.fulfilled,
+            expect(promise).to.eventually.equal(5)
+        ])
     }
 
     @Test
