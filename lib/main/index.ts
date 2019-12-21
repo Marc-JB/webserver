@@ -25,6 +25,10 @@ export namespace Async {
         }
     }
 
+    /**
+     * Resolves the returned promise after a specified amount of time
+     * @param timeInMilliSeconds the time to wait until the promise is resolved
+     */
     export function sleep(timeInMilliSeconds: number): Promise<void> {
         return new Promise(resolve => setTimeout(resolve, timeInMilliSeconds))
     }
@@ -65,6 +69,9 @@ export namespace Maps {
     }
 }
 
+/**
+ * @see https://en.wikipedia.org/wiki/Lazy_initialization
+ */
 export class Lazy<T> {
     protected isSet = false
     protected _value?: T
@@ -75,6 +82,10 @@ export class Lazy<T> {
         return this.isSet
     }
 
+    /**
+     * Returns the initialised value.
+     * Initialises the value upon first run.
+     */
     get value(): T {
         if(!this.isSet) {
             this.isSet = true
@@ -85,18 +96,29 @@ export class Lazy<T> {
     }
 }
 
+/**
+ * A class used to store subscribers for events
+ */
 export class Subscribers {
     protected list = new Set<() => any>()
 
+    /**
+     * Adds the given subscriber.
+     */
     add(func: () => any) {
         this.list.add(func)
     }
 
-    async notifyAll() {
+    /**
+     * Invoke all subscribers.
+     * The returned Promise will resolve after all functions have been resolved.
+     * @param clearAll Wether all subscribers should be removed after invoking.
+     */
+    async notifyAll(clearAll = true) {
         await Promise.all(
             Array.from(this.list).map(it => Async.wrapInPromise(it)())
         )
 
-        this.list.clear()
+        if(clearAll) this.list.clear()
     }
 }

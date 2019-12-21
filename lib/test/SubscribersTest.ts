@@ -28,4 +28,24 @@ export class SubscribersTest {
         expect(executedSubscribers).to.include("A")
         expect(executedSubscribers).to.include("B")
     }
+
+
+    @Test
+    async subscribersListShouldBeRetainedProperly() {
+        // Arrange
+        const executedSubscribers = new Array()
+        const subs = new Subscribers()
+
+        subs.add(() => { executedSubscribers.push("A") })
+        subs.add(() => { executedSubscribers.push("B") })
+
+        // Act
+        await subs.notifyAll(false)
+        await subs.notifyAll(false)
+
+        // Assert
+        expect(executedSubscribers).to.have.lengthOf(4)
+        expect(executedSubscribers).to.include("A")
+        expect(executedSubscribers).to.include("B")
+    }
 }
