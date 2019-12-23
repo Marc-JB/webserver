@@ -1,34 +1,52 @@
+/**
+ * A class which wraps a property and allows observers to get notified when the property changes
+ */
 export class Observable<T> {
-    protected readonly observers = new Set<(t: T) => void>()
-    protected readonly oneTimeObservers = new Set<(t: T) => void>()
+    protected readonly observers = new Set<(value: T, observable: Observable<T>) => boolean>()
 
-    constructor(protected value: T){}
+    /**
+     * @param value The initial value
+     */
+    constructor(protected storedValue: T){}
 
-    get(): T {
-        return this.value
+    /**
+     * Retreives the current value.
+     */
+    get value(): T {
+        return this.storedValue
     }
 
-    set(newValue: T) {
-        this.value = newValue
+    /**
+     * Changes the value to the new value and notifies all observers.
+     * @param newValue The new value
+     */
+    set value(newValue: T) {
+        this.storedValue = newValue
 
-        for (const observer of this.observers)
-            observer(newValue)
-
-        for (const observer of this.oneTimeObservers)
-            observer(newValue)
-
-        this.oneTimeObservers.clear()
+        for (const observer of this.observers){
+            const keepObserving = observer(newValue, this)
+            if(!keepObserving)
+                this.observers.delete(observer)
+        }
     }
 
-    observe(func: (t: T) => void) {
+    /**
+     * Adds the given function to the list of observers (until false gets returned from that function)
+     * @param func A function which takes a value and returns wether or not it wants to keep observing (false removes the observer)
+     */
+    observe(func: (value: T, observable: Observable<T>) => boolean) {
         this.observers.add(func)
     }
 
-    observeOnce(func: (t: T) => void) {
-        this.oneTimeObservers.add(func)
-    }
-
+    /**
+     * @returns a promise which will resolve at the first time set() is called
+     */
     observeOncePromise(): Promise<T> {
-        return new Promise<T>(resolve => { this.observeOnce(resolve) })
+        return new Promise<T>(resolve => {
+            this.observe(value => {
+                resolve(value)
+                return false
+            })
+        })
     }
 }

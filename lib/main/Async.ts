@@ -56,13 +56,13 @@ export class StreamToPromise {
             chunksRead++
         }
         this.isDone = true
-        this.result.set(chunksRead === 0 ? null : incomingData)
+        this.result.value = chunksRead === 0 ? null : incomingData
     }
 
     /**
      * Returns a Promise with all text from the stream (null when stream is empty)
      */
     public getResult(): Promise<string | null> {
-        return this.isDone ? Promise.resolve(this.result.get()) : this.result.observeOncePromise()
+        return this.isDone ? Promise.resolve(this.result.value) : this.result.observeOncePromise()
     }
 }

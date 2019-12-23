@@ -12,7 +12,7 @@ export class ObservableTests {
         // Act
         (async function timeSetter() {
             await Async.sleep(20)
-            observable.set(observable.get() + 1)
+            observable.value++
         })()
 
         // Assert
@@ -20,5 +20,26 @@ export class ObservableTests {
             expect(promise).to.eventually.be.fulfilled,
             expect(promise).to.eventually.become(1)
         ])
+    }
+
+    @Test
+    observerShouldBeUnsubscribedWhenObserverReturnsFalse() {
+        // Arrange
+        let numberOfTimesObserverIsCalled = 0
+        const observable = new Observable(0)
+        observable.observe(value => {
+            numberOfTimesObserverIsCalled++
+            return value < 2
+        })
+
+        // Act
+        observable.value++
+        observable.value++
+        observable.value++
+        observable.value++
+        observable.value++
+
+        // Assert
+        expect(numberOfTimesObserverIsCalled).to.equal(2)
     }
 }
