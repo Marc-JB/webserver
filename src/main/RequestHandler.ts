@@ -76,7 +76,7 @@ export class RequestHandler {
     public get fullPath(): string {
         const parentPath = this.parent.fullPath.split("/").filter(it => it !== "").join("/")
         const thisPath = this.path.split("/").filter(it => it !== "").join("/")
-        return parentPath + "/" + thisPath
+        return (parentPath + "/" + thisPath).split("/").filter(it => it !== "").join("/")
     }
 
     public async invoke(request: Readonly<HttpRequestInfWithParams>): Promise<ResponseInf | null> {

@@ -1,9 +1,9 @@
 import { ResponseInf } from "./Endpoint"
 
 export class ResponseBuilder {
-    public code: number = 200
-    public body: string | null = null
-    public readonly headers: Map<string, number | string | string[]> = new Map()
+    protected code: number = 200
+    protected body: string | null = null
+    protected readonly headers: Map<string, number | string | string[]> = new Map()
 
     public setStatus(status: number): this {
         this.code = status

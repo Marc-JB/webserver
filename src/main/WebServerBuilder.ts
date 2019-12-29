@@ -41,31 +41,22 @@ export class WebServerBuilder {
         let cert: string | Buffer | null = null
         let key: string | Buffer | null = null
 
-        const p = []
-
         if (isFileHandle(this.cert)) {
-            const fileHandle = this.cert
-            p.push(async () => {
-                cert = await fileHandle.readFile()
-                await fileHandle.close()
-            })
+            cert = await this.cert.readFile()
+            await this.cert.close()
         } else {
             cert = this.cert
         }
 
         if (isFileHandle(this.key)) {
-            const fileHandle = this.key
-            p.push(async () => {
-                key = await fileHandle.readFile()
-                await fileHandle.close()
-            })
+            key = await this.key.readFile()
+            await this.key.close()
         } else {
             key = this.key
         }
 
-        await Promise.all(p)
-
         if (cert === null && key === null) {
+            console.warn("Creating server without TLS")
             return new WebServer(http2.createServer(), this.developmentMessagesEnabled)
         } else if (cert !== null && key !== null) {
             return new WebServer(http2.createSecureServer({ allowHTTP1: true, cert, key }), this.developmentMessagesEnabled)
