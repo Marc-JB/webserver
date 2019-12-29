@@ -194,7 +194,7 @@ export class Endpoint implements EndpointParent {
         for(const handler of this.handlers) {
             if (handler.isMatch(url) && request.method.toUpperCase() === handler.method) {
                 if(responseObject !== null)
-                    throw new Error(`[${request.method.toUpperCase()}: ${url}] is registered on 2 different endpoints!`)
+                    throw new Error(`[${request.method.toUpperCase()}: ${url}] is registered 2 times!`)
 
                 const requestWithParams = HttpRequestWithParamsInternal.fromHttpRequest(request)
 
