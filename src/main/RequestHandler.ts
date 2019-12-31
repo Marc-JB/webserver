@@ -62,21 +62,23 @@ const urlValueMatchRegExp = (path: string, paramMatchType: ParamMatchInf) =>
     createRegExp(paramMatchType.valueMatcher(path).replace(/\//g, `\\/`) + regExpMatchUrlQueryAndAnchor, "full")
 
 export class RequestHandler {
+    public readonly path: string
+
     constructor(
-        public readonly path: string,
+        path: string,
         public readonly method: string,
         public readonly handler: AsyncRequestHandlerCallback,
         public readonly parent: Endpoint,
         protected readonly paramMatchType: ParamMatchInf = ParamMatchTypes.DEFAULT
-    ){}
+    ){
+        this.path = path.split("/").filter(it => it !== "").join("/")
+    }
 
     /**
      * @returns the path this handler is attached to, including the path of its parent (and parent of its parent, etc.)
      */
     public get fullPath(): string {
-        const parentPath = this.parent.fullPath.split("/").filter(it => it !== "").join("/")
-        const thisPath = this.path.split("/").filter(it => it !== "").join("/")
-        return (parentPath + "/" + thisPath).split("/").filter(it => it !== "").join("/")
+        return (this.parent.fullPath + "/" + this.path).split("/").filter(it => it !== "").join("/")
     }
 
     public async invoke(request: Readonly<HttpRequestInfWithParams>): Promise<ResponseInf | null> {
@@ -98,5 +100,9 @@ export class RequestHandler {
             .forEach((key, i) => params.set(key, values[i + 1]))
 
         return params
+    }
+
+    public toJSON() {
+        return `${this.method}: /${this.path}`
     }
 }

@@ -20,24 +20,22 @@ export type RequestHandlerCallback = (request: Readonly<HttpRequestInfWithParams
 export type AsyncRequestHandlerCallback = (request: Readonly<HttpRequestInfWithParams>) => Promise<ResponseInf | null>
 
 export class Endpoint implements EndpointParent {
+    public readonly path: string
     public readonly handlers: Set<RequestHandler> = new Set()
     public readonly childEndpoints: Set<Endpoint> = new Set()
     public readonly requestMiddleware: Set<((request: HttpRequestInf) => Promise<void>)> = new Set()
     public readonly responseMiddleware: Set<((request: HttpRequestInf, response: ResponseInf | null) => Promise<ResponseInf | null>)> = new Set()
 
-    constructor(
-        public readonly path: string,
-        public readonly parent: EndpointParent
-    ){}
+    constructor(path: string, public readonly parent: EndpointParent){
+        this.path = path.split("/").filter(it => it !== "").join("/")
+    }
 
     /**
      * The full path to this endpoint, including the path of parent endpoints (if any)
      * @returns a string, containing the path, with "/" slashes. "/" characters on the beginning and end of the path are removed
      */
     public get fullPath(): string {
-        const parentPath = this.parent.fullPath.split("/").filter(it => it !== "").join("/")
-        const thisPath = this.path.split("/").filter(it => it !== "").join("/")
-        return (parentPath + "/" + thisPath).split("/").filter(it => it !== "").join("/")
+        return (this.parent.fullPath + "/" + this.path).split("/").filter(it => it !== "").join("/")
     }
 
     /**
@@ -213,10 +211,23 @@ export class Endpoint implements EndpointParent {
              * because the middleware that is called here can return null,
              * thus modifying the responseObject to be null.
              */
-            if(responseObject !== null)
-                responseObject = await responseMiddleware(request, responseObject)
+            const r = await responseMiddleware(request, responseObject)
+            if(r !== null)
+                responseObject = r
         }
 
         return responseObject
+    }
+
+    public toJSON(): object {
+        return {
+            path: `/${this.path}`,
+            middleware: {
+                request: this.requestMiddleware.size,
+                response: this.responseMiddleware.size
+            },
+            childHandlers: Array.from(this.handlers).map(it => it.toJSON()),
+            childEndpoints: Array.from(this.childEndpoints).map(it => it.toJSON())
+        }
     }
 }

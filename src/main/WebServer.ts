@@ -22,12 +22,21 @@ const createSimpleWebPage = (title: string, body: string = "") => `<!DOCTYPE htm
 `
 
 export class WebServer implements EndpointParent {
+    /**
+     * The path this server is connected to. Always empty, since the server is the root.
+     */
     public readonly fullPath: string = ""
 
+    /**
+     * All endpoints that are connected to this server instance.
+     */
     public readonly childEndpoints: Set<Endpoint> = new Set()
 
     protected readonly _instances: Set<string | number> = new Set()
 
+    /**
+     * Returns a list with all ports and paths this server is connected to.
+     */
     public get instances(): ReadonlySet<string | number> {
         return new Set(this._instances)
     }
@@ -78,6 +87,10 @@ export class WebServer implements EndpointParent {
             return new Promise(resolve => res.end(responseObject.body as string, () => resolve()))
     }
 
+    /**
+     * Makes the server listen for requests on the port number or path specified
+     * @param portOrPath The port (number) or path (string) this server should listen to
+     */
     public async connect(portOrPath: number | string): Promise<void> {
         await this.listen(portOrPath)
         this._instances.add(portOrPath)
@@ -90,8 +103,11 @@ export class WebServer implements EndpointParent {
         })
     }
 
+    /**
+     * Closes all instances of this server
+     */
     public close() {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             if(this._instances.size > 0) this.server.close(error => error ? reject(error) : resolve())
             else resolve()
         })
@@ -110,5 +126,12 @@ export class WebServer implements EndpointParent {
 
     static get Builder(): typeof WebServerBuilder {
         return WebServerBuilder
+    }
+
+    public toJSON() {
+        return {
+            instances: Array.from(this.instances),
+            children: Array.from(this.childEndpoints).map(it => it.toJSON())
+        }
     }
 }
