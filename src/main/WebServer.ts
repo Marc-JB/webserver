@@ -88,12 +88,16 @@ export class WebServer implements EndpointParent {
     }
 
     /**
-     * Makes the server listen for requests on the port number or path specified
-     * @param portOrPath The port (number) or path (string) this server should listen to
+     * Makes the server listen for requests on the port numbers or paths specified
+     * @param portOrPaths The ports (number) or paths (string) this server should listen to
      */
-    public async connect(portOrPath: number | string): Promise<void> {
-        await this.listen(portOrPath)
-        this._instances.add(portOrPath)
+    public async connect(...portOrPaths: (number | string)[]): Promise<void> {
+        await Promise.all(
+            portOrPaths.map(async it => {
+                await this.listen(it)
+                this._instances.add(it)
+            })
+        )
     }
 
     private listen(portOrPath: number | string): Promise<void> {
@@ -107,10 +111,9 @@ export class WebServer implements EndpointParent {
      * Closes all instances of this server
      */
     public close() {
-        return new Promise<void>((resolve, reject) => {
-            if(this._instances.size > 0) this.server.close(error => error ? reject(error) : resolve())
-            else resolve()
-        })
+        return this._instances.size > 0 ? new Promise<void>((resolve, reject) => {
+            this.server.close(error => error ? reject(error) : resolve())
+        }) : Promise.resolve()
     }
 
     /**
