@@ -17,16 +17,16 @@ async function main(){
 
     const root = server.createEndpointAtPath("/")
 
-    const homepage = async () => {
+    root.get("", async () => {
         const file = await afs.open("./src/example/index.html", "r")
         const buffer = await file.readFile()
         const body = buffer.toString()
         await file.close()
         return new ResponseBuilder().setStatus(200).setBody(body, true).build()
-    }
+    })
 
-    root.get("index.html", homepage)
-    root.get("", homepage)
+    root.get("duplicate.html", () => new ResponseBuilder().setStatus(200).build())
+    root.get("duplicate.html", () => new ResponseBuilder().setStatus(200).build())
 
     root.get("README.md", request => {
         return new ResponseBuilder()
@@ -37,8 +37,8 @@ async function main(){
             .build()
     })
 
-    root.addResponseMiddleware(async (_, response) => {
-        if(response === null) {
+    root.addResponseMiddleware(async (request, response) => {
+        if(response === null && request.url.path !== "/ws404.html") {
             const file = await afs.open("./src/example/404.html", "r")
             const buffer = await file.readFile()
             const body = buffer.toString()
