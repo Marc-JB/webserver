@@ -9,10 +9,10 @@ export class ServerTests {
         const server1 = await new WebServer.Builder().enableDevelopmentMessages().build()
         const server2 = await new WebServer.Builder().enableDevelopmentMessages().build()
 
-        await server1.connect(8080)
+        await server1.listen()
 
         // Act
-        const f = server2.connect(8080)
+        const f = server2.listen()
 
         // Assert
         await expect(f).to.eventually.be.rejectedWith(Error)

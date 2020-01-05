@@ -32,16 +32,13 @@ export class WebServer implements EndpointParent {
      */
     public readonly childEndpoints: Set<Endpoint> = new Set()
 
-    protected readonly _instances: Set<string | number> = new Set()
+    protected isListening = false
 
-    /**
-     * Returns a list with all ports and paths this server is connected to.
-     */
-    public get instances(): ReadonlySet<string | number> {
-        return new Set(this._instances)
+    public get listening() {
+        return this.isListening
     }
 
-    constructor(protected readonly server: Http2Server, protected readonly developmentMessagesEnabled: boolean = false) {
+    constructor(protected readonly server: Http2Server, public readonly port: string | number, protected readonly developmentMessagesEnabled: boolean = false) {
         server.on("request", (req, res) => this.onRequest(req, res))
     }
 
@@ -88,30 +85,23 @@ export class WebServer implements EndpointParent {
     }
 
     /**
-     * Makes the server listen for requests on the port numbers or paths specified
-     * @param portOrPaths The ports (number) or paths (string) this server should listen to
+     * Makes the server start listening for requests
      */
-    public async connect(...portOrPaths: (number | string)[]): Promise<void> {
-        await Promise.all(
-            portOrPaths.map(async it => {
-                await this.listen(it)
-                this._instances.add(it)
-            })
-        )
-    }
-
-    private listen(portOrPath: number | string): Promise<void> {
+    public listen(): Promise<void> {
         return new Promise((resolve, reject) => {
             this.server.once("error", (error: Error) => reject(error))
-            this.server.listen(portOrPath, () => resolve())
+            this.server.listen(this.port, () => {
+                this.isListening = true
+                resolve()
+            })
         })
     }
 
     /**
-     * Closes all instances of this server
+     * Makes the server stop listening for requests
      */
     public close() {
-        return this._instances.size > 0 ? new Promise<void>((resolve, reject) => {
+        return this.isListening ? new Promise<void>((resolve, reject) => {
             this.server.close(error => error ? reject(error) : resolve())
         }) : Promise.resolve()
     }
@@ -133,7 +123,7 @@ export class WebServer implements EndpointParent {
 
     public toJSON() {
         return {
-            instances: Array.from(this.instances),
+            port: this.port,
             children: Array.from(this.childEndpoints).map(it => it.toJSON())
         }
     }

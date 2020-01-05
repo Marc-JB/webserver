@@ -11,6 +11,7 @@ function isFileHandle(cert: CertificateType | null): cert is fs.FileHandle {
 export class WebServerBuilder {
     protected cert: CertificateType | null = null
     protected key: CertificateType | null = null
+    protected port: string | number | null = null
 
     public developmentMessagesEnabled: boolean = false
 
@@ -37,6 +38,11 @@ export class WebServerBuilder {
         return this
     }
 
+    setPort(port: string | number): this {
+        this.port = port
+        return this
+    }
+
     async build(): Promise<WebServer> {
         let cert: string | Buffer | null = null
         let key: string | Buffer | null = null
@@ -57,9 +63,9 @@ export class WebServerBuilder {
 
         if (cert === null && key === null) {
             console.warn("Creating server without TLS")
-            return new WebServer(http2.createServer(), this.developmentMessagesEnabled)
+            return new WebServer(http2.createServer(), this.port ?? 80, this.developmentMessagesEnabled)
         } else if (cert !== null && key !== null) {
-            return new WebServer(http2.createSecureServer({ allowHTTP1: true, cert, key }), this.developmentMessagesEnabled)
+            return new WebServer(http2.createSecureServer({ allowHTTP1: true, cert, key }), this.port ?? 443, this.developmentMessagesEnabled)
         } else {
             throw new Error("Key and cert must be both set or unset")
         }

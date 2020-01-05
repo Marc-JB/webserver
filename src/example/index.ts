@@ -13,7 +13,7 @@ async function main(){
 
     console.log("Connecting server...")
 
-    await server.connect(443, 8080)
+    await server.listen()
 
     const root = server.createEndpointAtPath("/")
 
@@ -57,9 +57,7 @@ async function main(){
             await server.close()
             console.log("Server succesfully shut down.")
             process.exit(0);
-        } else if (key.name === "i") {
-            console.log("List of running instances: " + Array.from(server.instances).map(it => typeof it === "string" ? `"${it}"`: it).join(", "))
-        } else if (key.name === "d") {
+        } else if (key.name === "s") {
             console.log("Server: " + JSON.stringify(server.toJSON(), undefined, 4))
         } else if (key.name === "c") {
             console.log("Server children: " + JSON.stringify(server.toJSON().children, undefined, 4))
