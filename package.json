@@ -6,6 +6,7 @@
     "typings": "./build/core/main/index.d.ts",
     "type": "module",
     "scripts": {
+        "start": "tsc -b -v ./src/example/ && node --experimental-modules ./build/core/example/index.js",
         "build": "tsc -b -v ./src/main/",
         "test": "tsc -b -v ./src/test/ && mocha -r esm --recursive --exit ./build/"
     },
