@@ -1,8 +1,9 @@
 import { Async } from "../../lib/main/index"
 import { EndpointParent } from "./EndpointParentInf"
-import { HttpRequest, HttpRequestWithParamsInternal } from "./HttpRequest"
-import { HttpRequestInf, HttpRequestInfWithParams } from "./HttpRequestInf"
+import { HttpRequest } from "./request/HttpRequest"
+import { HttpRequestInf, ReadonlyHttpRequestInf } from "./request/HttpRequestInf"
 import { RequestHandler } from "./RequestHandler"
+import { UrlWithParsedQuery } from "url"
 
 export interface ResponseInf extends ReadonlyResponseInf {
     code: number
@@ -16,8 +17,8 @@ export interface ReadonlyResponseInf {
     readonly headers: ReadonlyMap<string, number | string | string[]>
 }
 
-export type RequestHandlerCallback = (request: Readonly<HttpRequestInfWithParams>) => Async.MaybeAsync<ResponseInf | null>
-export type AsyncRequestHandlerCallback = (request: Readonly<HttpRequestInfWithParams>) => Promise<ResponseInf | null>
+export type RequestHandlerCallback = (request: ReadonlyHttpRequestInf) => Async.MaybeAsync<ResponseInf | null>
+export type AsyncRequestHandlerCallback = (request: ReadonlyHttpRequestInf) => Promise<ResponseInf | null>
 
 export class Endpoint implements EndpointParent {
     public readonly path: string
@@ -194,13 +195,13 @@ export class Endpoint implements EndpointParent {
                 if(responseObject !== null)
                     throw new Error(`[${request.method.toUpperCase()}: ${url}] is registered 2 times!`)
 
-                const requestWithParams = HttpRequestWithParamsInternal.fromHttpRequest(request)
+                const requestUrl = (request.url as UrlWithParsedQuery & { params: Map<string, string> })
 
                 for(const [key, value] of handler.getParams(url))
-                    requestWithParams.params.set(key, value)
+                    requestUrl.params.set(key, value)
 
-                responseObject = await handler.invoke(requestWithParams)
-                HttpRequestWithParamsInternal.removeParams(requestWithParams)
+                responseObject = await handler.invoke(request)
+                requestUrl.params.clear()
             }
         }
 

@@ -1,7 +1,7 @@
 import { Http2Server, Http2ServerRequest, Http2ServerResponse } from "http2"
 import { Endpoint, ReadonlyResponseInf } from "./Endpoint"
 import { EndpointParent } from "./EndpointParentInf"
-import { HttpRequest } from "./HttpRequest"
+import { HttpRequest } from "./request/HttpRequest"
 import { Maps } from "../../lib/main/index"
 import { WebServerBuilder } from "./WebServerBuilder"
 import { ResponseBuilder } from "./ResponseBuilder"

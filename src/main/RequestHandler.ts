@@ -1,5 +1,5 @@
 import { AsyncRequestHandlerCallback, Endpoint, ResponseInf } from "./Endpoint"
-import { HttpRequestInfWithParams } from "./HttpRequestInf"
+import { ReadonlyHttpRequestInf } from "./request/HttpRequestInf"
 
 interface ParamMatchInf {
     /** Returns an array of param keys for the given url string */
@@ -81,7 +81,7 @@ export class RequestHandler {
         return (this.parent.fullPath + "/" + this.path).split("/").filter(it => it !== "").join("/")
     }
 
-    public async invoke(request: Readonly<HttpRequestInfWithParams>): Promise<ResponseInf | null> {
+    public async invoke(request: ReadonlyHttpRequestInf): Promise<ResponseInf | null> {
         return this.handler(request)
     }
 
