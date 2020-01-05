@@ -6,8 +6,8 @@ export class ServerTests {
     @test
     async connectShouldThrowErrorWhenPortIsInUse(){
         // Arrange
-        const server1 = await new WebServer.Builder().enableDevelopmentMessages().build()
-        const server2 = await new WebServer.Builder().enableDevelopmentMessages().build()
+        const server1 = await new WebServer.Builder().enableDevelopmentMessages().setPort(8080).build()
+        const server2 = await new WebServer.Builder().enableDevelopmentMessages().setPort(8080).build()
 
         await server1.listen()
 
