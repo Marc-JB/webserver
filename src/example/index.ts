@@ -64,7 +64,7 @@ async function main(){
         }
     })
 
-    console.log("Server active and operational.")
+    console.log(`Server active and operational on https://localhost:${server.port}/.`)
 }
 
 main().catch(console.error)
