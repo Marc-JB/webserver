@@ -5,21 +5,7 @@ import { HttpRequest } from "./request/HttpRequest"
 import { Maps } from "../../lib/main/index"
 import { WebServerBuilder } from "./WebServerBuilder"
 import { ResponseBuilder } from "./ResponseBuilder"
-
-const createSimpleWebPage = (title: string, body: string = "") => `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>${title}</title>
-</head>
-<body>
-    <h1>${title}</h1>
-    ${body}
-</body>
-</html>
-`
+import { PageBuilder } from "./PageBuilder"
 
 export enum CONNECTION_TYPE {
     HTTP1, HTTPS1, HTTP2, HTTPS2_WITH_HTTP1_FALLBACK, HTTPS2
@@ -73,13 +59,13 @@ export class WebServer implements EndpointParent {
                 }
             }
 
-            await this.writeResponse(responseObject ?? new ResponseBuilder().setStatus(404).setBody(createSimpleWebPage("Error 404: Page not found")).build(), res)
+            await this.writeResponse(responseObject ?? new ResponseBuilder().setStatus(404).setBody(PageBuilder.createPage("Page not Found")).build(), res)
         } catch (error) {
             console.error(error)
 
             const response = new ResponseBuilder()
                 .setStatus(500)
-                .setBody(this.developmentMessagesEnabled && error instanceof Error ? createSimpleWebPage("Error 500: Internal server error", `<pre><code>${error.stack}</code></pre>`) : null, true)
+                .setBody(PageBuilder.createPage("Internal Server Error", this.developmentMessagesEnabled && error instanceof Error ? PageBuilder.createCodeBlock("Stack trace", error.stack ?? "No stack trace found") : "<p>Please try again later</p>", "red", "cyan"), true)
                 .build()
 
             await this.writeResponse(response, res)
