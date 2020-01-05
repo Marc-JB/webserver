@@ -21,6 +21,10 @@ const createSimpleWebPage = (title: string, body: string = "") => `<!DOCTYPE htm
 </html>
 `
 
+export enum CONNECTION_TYPE {
+    HTTP1, HTTPS1, HTTP2, HTTPS2_WITH_HTTP1_FALLBACK, HTTPS2
+}
+
 export class WebServer implements EndpointParent {
     /**
      * The path this server is connected to. Always empty, since the server is the root.
@@ -38,7 +42,14 @@ export class WebServer implements EndpointParent {
         return this.isListening
     }
 
-    constructor(protected readonly server: Http2Server, public readonly port: string | number, protected readonly developmentMessagesEnabled: boolean = false) {
+    public readonly isHTTPS = this.connectionType !== CONNECTION_TYPE.HTTP1 && this.connectionType !== CONNECTION_TYPE.HTTP2
+
+    constructor(
+        protected readonly server: Http2Server,
+        public readonly port: string | number,
+        public readonly connectionType: CONNECTION_TYPE,
+        protected readonly developmentMessagesEnabled: boolean = false
+    ) {
         server.on("request", (req, res) => this.onRequest(req, res))
     }
 
@@ -124,6 +135,7 @@ export class WebServer implements EndpointParent {
     public toJSON() {
         return {
             port: this.port,
+            isHTTPS: this.isHTTPS,
             children: Array.from(this.childEndpoints).map(it => it.toJSON())
         }
     }
