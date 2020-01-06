@@ -1,6 +1,7 @@
 import { promises as afs } from "fs"
 import readline from "readline"
 import { WebServer, ResponseBuilder } from "../main/index"
+import { Lazy } from "../main/lib"
 
 async function main(){
     console.log("Building server & loading certificates...")
@@ -17,11 +18,16 @@ async function main(){
 
     const root = server.createEndpointAtPath("/")
 
-    root.get("", async request => {
-        const file = await afs.open("./src/example/index.html", "r")
+    const indexPage = new Lazy(async () => {
+        const file = await afs.open("./res/example/index.html", "r")
         const buffer = await file.readFile()
-        const body = buffer.toString().replace("${info}", `Do Not Track enabled: ${request.doNotTrackEnabled ? "yes" : "no"}<br>Data saver enabled: ${request.dataSaverEnabled ? "yes" : "no"}`)
+        const body = buffer.toString()
         await file.close()
+        return body
+    })
+
+    root.get("", async request => {
+        const body = (await indexPage.value).replace("${info}", `Do Not Track enabled: ${request.doNotTrackEnabled ? "yes" : "no"}<br>Data saver enabled: ${request.dataSaverEnabled ? "yes" : "no"}`)
         return new ResponseBuilder().setStatusCode(200).setHtmlBody(body).build()
     })
 
@@ -39,7 +45,7 @@ async function main(){
 
     root.addResponseMiddleware(async (request, response) => {
         if(response === null && request.url.path !== "/ws404.html") {
-            const file = await afs.open("./src/example/404.html", "r")
+            const file = await afs.open("./res/example/404.html", "r")
             const buffer = await file.readFile()
             const body = buffer.toString()
             await file.close()
