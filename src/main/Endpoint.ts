@@ -2,7 +2,7 @@ import { Async } from "../../lib/main/index"
 import { EndpointParent } from "./EndpointParentInf"
 import { HttpRequest } from "./request/HttpRequest"
 import { HttpRequestInf, ReadonlyHttpRequestInf } from "./request/HttpRequestInf"
-import { RequestHandler } from "./RequestHandler"
+import { RequestHandler } from "./request/RequestHandler"
 import { UrlWithParsedQuery } from "url"
 
 export interface ResponseInf extends ReadonlyResponseInf {
