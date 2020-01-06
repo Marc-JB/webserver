@@ -17,10 +17,10 @@ async function main(){
 
     const root = server.createEndpointAtPath("/")
 
-    root.get("", async () => {
+    root.get("", async request => {
         const file = await afs.open("./src/example/index.html", "r")
         const buffer = await file.readFile()
-        const body = buffer.toString()
+        const body = buffer.toString().replace("${info}", `Do Not Track enabled: ${request.doNotTrackEnabled ? "yes" : "no"}<br>Data saver enabled: ${request.dataSaverEnabled ? "yes" : "no"}`)
         await file.close()
         return new ResponseBuilder().setStatusCode(200).setHtmlBody(body).build()
     })
