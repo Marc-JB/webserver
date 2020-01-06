@@ -5,48 +5,46 @@ export class ResponseBuilder {
     protected body: string | null = null
     protected readonly headers: Map<string, number | string | string[]> = new Map()
 
-    public setStatus(status: number): this {
+    public setStatusCode(status: number): this {
         this.code = status
-
         return this
     }
 
-    public setBody(body: string | Object | null, inferContentType = false): this {
-        if(body === null) {
-            this.body = null
-            this.headers.delete("Content-Type")
-        } else if (typeof body === "string") {
-            if(inferContentType) {
-                this.setHeader("Content-Type", body.trim().toLowerCase().startsWith("<!doctype html>") ? "text/html" : "text/plain")
-            }
+    public setHtmlBody(body: string): this {
+        this.setContentType("text/html; charset=utf-8")
+        this.body = body
+        return this
+    }
 
-            this.body = body
-        } else {
-            if(inferContentType) {
-                this.setHeader("Content-Type", "application/json;charset=UTF-8")
-            }
+    public setPlainTextBody(body: string): this {
+        this.setContentType("text/plain; charset=utf-8")
+        this.body = body
+        return this
+    }
 
-            this.body = JSON.stringify(body)
-        }
-
+    public setJsonBody(body: any, replacer: ((this: any, key: string, value: any) => any) | null = null, space: string | number | null = 4): this {
+        this.setContentType("application/json;charset=UTF-8")
+        this.body = JSON.stringify(body, replacer ?? undefined, space ?? undefined)
         return this
     }
 
     public setHeader(key: string, value: number | string | string[]): this {
         this.headers.set(key, value)
-
         return this
+    }
+
+    public setContentType(value: string): this {
+        return this.setHeader("Content-Type", value)
     }
 
     public setCORS(allowedOrigins: string = "*", allowedMethods: string[] = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], allowedHeaders: string[] = ["X-Requested-With", "Content-Type"]): this {
-        this.setHeader("Access-Control-Allow-Origin", allowedOrigins)
-        this.setHeader("Access-Control-Allow-Methods", allowedMethods.join(", "))
-        this.setHeader("Access-Control-Allow-Headers", allowedHeaders.join(", "))
-
         return this
+            .setHeader("Access-Control-Allow-Origin", allowedOrigins)
+            .setHeader("Access-Control-Allow-Methods", allowedMethods.join(", "))
+            .setHeader("Access-Control-Allow-Headers", allowedHeaders.join(", "))
     }
 
-    public build(): ResponseInf {
+    public build(): Readonly<ResponseInf> {
         return {
             code: this.code,
             body: this.body,

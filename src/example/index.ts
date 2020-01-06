@@ -22,18 +22,18 @@ async function main(){
         const buffer = await file.readFile()
         const body = buffer.toString()
         await file.close()
-        return new ResponseBuilder().setStatus(200).setBody(body, true).build()
+        return new ResponseBuilder().setStatusCode(200).setHtmlBody(body).build()
     })
 
-    root.get("duplicate.html", () => new ResponseBuilder().setStatus(200).build())
-    root.get("duplicate.html", () => new ResponseBuilder().setStatus(200).build())
+    root.get("duplicate.html", () => new ResponseBuilder().setStatusCode(200).build())
+    root.get("duplicate.html", () => new ResponseBuilder().setStatusCode(200).build())
 
     root.get("README.md", request => {
         return new ResponseBuilder()
-            .setStatus(200)
-            .setBody(request.url.query["lang"] === "nl" ? "# Voorbeeldbestand\n\nVoorbeeldtekst" :"# Example file\n\nExample text", false)
-            .setHeader("Content-Type", "text/markdown")
-            .setHeader("Language", request.url.query["lang"] === "nl" ? "nl-NL" : "en-US")
+            .setStatusCode(200)
+            .setPlainTextBody(request.url.query["lang"] === "nl" ? "# Voorbeeldbestand\n\nVoorbeeldtekst" :"# Example file\n\nExample text")
+            .setContentType("text/markdown")
+            .setHeader("Content-Language", request.url.query["lang"] === "nl" ? "nl-NL" : "en-US")
             .build()
     })
 
@@ -43,7 +43,7 @@ async function main(){
             const buffer = await file.readFile()
             const body = buffer.toString()
             await file.close()
-            return new ResponseBuilder().setStatus(404).setBody(body, true).build()
+            return new ResponseBuilder().setStatusCode(404).setHtmlBody(body).build()
         }
 
         return response

@@ -59,13 +59,13 @@ export class WebServer implements EndpointParent {
                 }
             }
 
-            await this.writeResponse(responseObject ?? new ResponseBuilder().setStatus(404).setBody(PageBuilder.createPage("Page not Found")).build(), res)
+            await this.writeResponse(responseObject ?? new ResponseBuilder().setStatusCode(404).setHtmlBody(PageBuilder.createPage("Page not Found")).build(), res)
         } catch (error) {
             console.error(error)
 
             const response = new ResponseBuilder()
-                .setStatus(500)
-                .setBody(PageBuilder.createPage("Internal Server Error", this.developmentMessagesEnabled && error instanceof Error ? PageBuilder.createCodeBlock("Stack trace", error.stack ?? "No stack trace found") : "<p>Please try again later</p>", "red", "cyan"), true)
+                .setStatusCode(500)
+                .setHtmlBody(PageBuilder.createPage("Internal Server Error", this.developmentMessagesEnabled && error instanceof Error ? PageBuilder.createCodeBlock("Stack trace", error.stack ?? "No stack trace found") : "<p>Please try again later</p>", "red", "cyan"))
                 .build()
 
             await this.writeResponse(response, res)
