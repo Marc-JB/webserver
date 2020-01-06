@@ -15,8 +15,8 @@ export class HttpRequest implements HttpRequestInf {
     public readonly method: string = this.request.method.toUpperCase()
 
     public readonly headers: ReadonlyMap<string, string | string[]> = Maps.rewriteObjectAsMap(this.request.headers)
-    public readonly dataSaverEnabled = this.headers.has("Save-Data") ? this.headers.get("Save-Data") === "on" : null
-    public readonly doNotTrackEnabled = this.headers.has("DNT") ? this.headers.get("DNT") === "1" : null
+    public readonly dataSaverEnabled = this.headers.has("save-data") ? this.headers.get("save-data") === "on" : null
+    public readonly doNotTrackEnabled = this.headers.has("dnt") ? this.headers.get("dnt") === "1" : null
 
     private readonly _body = new Lazy(() => new StreamToPromise(this.request).getResult())
 
