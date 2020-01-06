@@ -13,7 +13,10 @@ function parseUrl(url: string): UrlWithParams {
 export class HttpRequest implements HttpRequestInf {
     public readonly url: UrlWithParams = parseUrl(this.request.url)
     public readonly method: string = this.request.method.toUpperCase()
+
     public readonly headers: ReadonlyMap<string, string | string[]> = Maps.rewriteObjectAsMap(this.request.headers)
+    public readonly dataSaverEnabled = this.headers.has("Save-Data") ? this.headers.get("Save-Data") === "on" : null
+    public readonly doNotTrackEnabled = this.headers.has("DNT") ? this.headers.get("DNT") === "1" : null
 
     private readonly _body = new Lazy(() => new StreamToPromise(this.request).getResult())
 
@@ -21,13 +24,8 @@ export class HttpRequest implements HttpRequestInf {
         return this._body.value
     }
 
-    /**
-     * An authentication object
-     * Defaults to *null*, add an authentication middleware to change the value
-     */
     public authentication: any = null
 
-    /** Options passed trough by middleware. */
     public readonly options: Map<string, any> = new Map()
 
     constructor(protected readonly request: Http2ServerRequest){}
