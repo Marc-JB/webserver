@@ -4,8 +4,8 @@ import { EndpointParent } from "./EndpointParentInf"
 import { HttpRequest } from "./request/HttpRequest"
 import { Maps } from "../../lib/main/index"
 import { WebServerBuilder } from "./WebServerBuilder"
-import { ResponseBuilder } from "./ResponseBuilder"
-import { PageBuilder } from "./PageBuilder"
+import { ResponseBuilder } from "./response/ResponseBuilder"
+import { PageBuilder } from "./response/PageBuilder"
 
 export enum CONNECTION_TYPE {
     HTTP1, HTTPS1, HTTP2, HTTPS2_WITH_HTTP1_FALLBACK, HTTPS2

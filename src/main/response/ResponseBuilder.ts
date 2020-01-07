@@ -1,4 +1,4 @@
-import { ResponseInf } from "./Endpoint"
+import { ResponseInf } from "../Endpoint"
 
 export class ResponseBuilder {
     protected code: number = 200
