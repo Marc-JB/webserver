@@ -18,6 +18,10 @@ async function main(){
 
     const root = server.createEndpointAtPath("/")
 
+    root.addRequestMiddleware(request => {
+        request.customSettings.set("requestedLanguage", request.url.query["lang"] === "nl" ? "nl-NL" : "en-US")
+    })
+
     const indexPage = new Lazy(async () => {
         const file = await afs.open("./res/example/index.html", "r")
         const buffer = await file.readFile()
@@ -27,7 +31,10 @@ async function main(){
     })
 
     root.get("", async request => {
-        const body = (await indexPage.value).replace("${info}", `Do Not Track enabled: ${request.doNotTrackEnabled ? "yes" : "no"}<br>Data saver enabled: ${request.dataSaverEnabled ? "yes" : "no"}`)
+        const body = (await indexPage.value)
+            .replace("${info}", `Do Not Track enabled: ${request.doNotTrackEnabled ? "yes" : "no"}<br>` +
+                `Data saver enabled: ${request.dataSaverEnabled ? "yes" : "no"}<br>` +
+                `Requested language: ${request.customSettings.get("requestedLanguage")}`)
         return new ResponseBuilder().setStatusCode(200).setHtmlBody(body).build()
     })
 
@@ -37,9 +44,9 @@ async function main(){
     root.get("README.md", request => {
         return new ResponseBuilder()
             .setStatusCode(200)
-            .setPlainTextBody(request.url.query["lang"] === "nl" ? "# Voorbeeldbestand\n\nVoorbeeldtekst" :"# Example file\n\nExample text")
+            .setPlainTextBody(request.customSettings.get("requestedLanguage") === "nl-NL" ? "# Voorbeeldbestand\n\nVoorbeeldtekst" :"# Example file\n\nExample text")
             .setContentType("text/markdown")
-            .setHeader("Content-Language", request.url.query["lang"] === "nl" ? "nl-NL" : "en-US")
+            .setHeader("Content-Language", request.customSettings.get("requestedLanguage"))
             .build()
     })
 

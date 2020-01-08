@@ -1,6 +1,5 @@
 import { Async } from "../../lib/main/index"
 import { EndpointParent } from "./EndpointParentInf"
-import { HttpRequest } from "./request/HttpRequest"
 import { HttpRequestInf, ReadonlyHttpRequestInf } from "./request/HttpRequestInf"
 import { RequestHandler } from "./request/RequestHandler"
 import { UrlWithParsedQuery } from "url"
@@ -25,7 +24,7 @@ export class Endpoint implements EndpointParent {
     public readonly handlers: Set<RequestHandler> = new Set()
     public readonly childEndpoints: Set<Endpoint> = new Set()
     public readonly requestMiddleware: Set<((request: HttpRequestInf) => Promise<void>)> = new Set()
-    public readonly responseMiddleware: Set<((request: HttpRequestInf, response: ResponseInf | null) => Promise<ResponseInf | null>)> = new Set()
+    public readonly responseMiddleware: Set<((request: ReadonlyHttpRequestInf, response: ResponseInf | null) => Promise<ResponseInf | null>)> = new Set()
 
     constructor(path: string, public readonly parent: EndpointParent){
         this.path = path.split("/").filter(it => it !== "").join("/")
@@ -135,20 +134,10 @@ export class Endpoint implements EndpointParent {
     }
 
     /**
-     * Adds the authentication middleware tot this endpoint
-     * @param middleware a function that takes a request and returns the authentication object (like a user, admin, token)
-     */
-    public addAuthenticationMiddleware(middleware: (request: HttpRequestInf) => any | Promise<any>){
-        this.addRequestMiddleware(async request => {
-            request.authentication = await Async.wrapInPromise(middleware)(request)
-        })
-    }
-
-    /**
      * Adds the middleware to this endpoint
      * @param middleware a function that takes a request and modifies it
      */
-    public addResponseMiddleware(middleware: (request: Readonly<HttpRequest>, response: ResponseInf | null) => Async.MaybeAsync<ResponseInf | null>){
+    public addResponseMiddleware(middleware: (request: ReadonlyHttpRequestInf, response: ResponseInf | null) => Async.MaybeAsync<ResponseInf | null>){
         this.responseMiddleware.add(Async.wrapInPromise(middleware))
     }
 

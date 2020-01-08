@@ -14,6 +14,7 @@ export class HttpRequest implements HttpRequestInf {
     public readonly url: UrlWithParams = parseUrl(this.request.url)
     public readonly method: string = this.request.method.toUpperCase()
 
+    /** @todo lowercase all header keys */
     public readonly headers: ReadonlyMap<string, string | string[]> = Maps.rewriteObjectAsMap(this.request.headers)
     public readonly dataSaverEnabled = this.headers.has("save-data") ? this.headers.get("save-data") === "on" : null
     public readonly doNotTrackEnabled = this.headers.has("dnt") ? this.headers.get("dnt") === "1" : null
@@ -24,9 +25,7 @@ export class HttpRequest implements HttpRequestInf {
         return this._body.value
     }
 
-    public authentication: any = null
-
-    public readonly options: Map<string, any> = new Map()
+    public readonly customSettings = new Map()
 
     constructor(protected readonly request: Http2ServerRequest){}
 }

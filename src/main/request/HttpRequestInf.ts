@@ -8,7 +8,7 @@ export interface ReadonlyHttpRequestInf {
     /**
      * True if a Save-Data: on header is sent,
      * False if a Save-Data: off header is sent,
-     * Null if no DNT header was sent
+     * Null if no Save-Data header was sent
      */
     readonly dataSaverEnabled: boolean | null
     /**
@@ -20,17 +20,10 @@ export interface ReadonlyHttpRequestInf {
 
     readonly body: Promise<string | null>
 
-    /**
-     * An authentication object
-     * Defaults to *null*, add an authentication middleware to change the value
-     */
-    readonly authentication: any
-
-    /** Options passed trough by middleware. */
-    readonly options: ReadonlyMap<string, any>
+    /** Options passed trough by request middleware */
+    readonly customSettings: ReadonlyMap<string, any>
 }
 
 export interface HttpRequestInf extends ReadonlyHttpRequestInf {
-    authentication: any
-    readonly options: Map<string, any>
+    readonly customSettings: Map<string, any>
 }
