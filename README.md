@@ -1,4 +1,5 @@
 # @peregrine/webserver
-Experimental http server for node
+Experimental http server for node.
 
-**Note:** this version requires Node.js 10.x and higher.
+## Example
+Check out [the example that is part of this project](./src/example/index.ts).
