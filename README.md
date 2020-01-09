@@ -6,14 +6,14 @@ Check out [the example that is part of this project](./example/main/Application.
 
 ## To do
 - Endpoint classes with @HttpGet, @HttpPost decorators
-  ```
+  ```typescript
   class UsersEndpoint {
       @HttpGet
       getUsers( ... ){ ... }
   }
   ```
 - @Route(string) decorator support to endpoint classes & class methods
-  ```
+  ```typescript
   @Route("/users")
   class UsersEndpoint {
       @HttpGet
@@ -22,7 +22,7 @@ Check out [the example that is part of this project](./example/main/Application.
   }
   ```
 - @Request, @Body, @Query(string) decorators in endpoint class methods
-  ```
+  ```typescript
   @Route("/users")
   class UsersEndpoint {
       @HttpGet
@@ -31,7 +31,7 @@ Check out [the example that is part of this project](./example/main/Application.
   }
   ```
 - @RequestMiddleware, @ResponseMiddleware decorators in endpoint class methods
-  ```
+  ```typescript
   @Route("/users")
   class UsersEndpoint {
       @ResponseMiddleware
@@ -39,24 +39,24 @@ Check out [the example that is part of this project](./example/main/Application.
   }
   ```
 - Add custom body parsing (request + response)
-  ```
+  ```typescript
   rootEndpoint.addBodyParser("application/json", jsonParser)
   ```
 - Better type checking for specific request types (HEAD without response body)
-  ```
+  ```typescript
   endpoint.head(route: string, handler: (request: HttpRequest) => ResponseWithoutBody)
   ```
 - Make sure /index.html is called when the path is /
 - Automatically add methods (like HEAD when GET is registered), allow custom override.
 - Automatically add headers to response (like Date), allow custom override.
 - Add common HTTP Headers to HttpRequest/ResponseBuilder
-  ```
+  ```typescript
   httpRequest.getLanguagesArray()
   responseBuilder.addDate(...)
   responseBuilder.setCachePolicy(...)
   ```
 - Add new authentication handling and @AuthenticationHandler & @Auth decorators for endpoint classes
-  ```
+  ```typescript
   class ProfileEndpoint {
       @HttpPut
       @Route("/{profileId}")
@@ -72,7 +72,7 @@ Check out [the example that is part of this project](./example/main/Application.
   }
   ```
 - Add custom error throwing and handling
-  ```
+  ```typescript
   rootEndpoint.post("/", () => throw new MethodNotAllowedError())
   rootEndpoint.onError((error: Error): HttpResponse => { ... })
   ```
