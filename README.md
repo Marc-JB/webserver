@@ -17,7 +17,8 @@ Check out [the example that is part of this project](./example/main/Application.
 - Automatically add methods (like HEAD when GET is registered), allow custom override.
 - Automatically add headers to response (like Date), allow custom override.
 - Add common HTTP Headers to HttpRequest/ResponseBuilder
-- Add more unit tests
-- Add integration tests
+- Improve tests
+  * Add more unit tests
+  * Add integration tests
 - Add new authentication handling
 - Add a folder to serve statically
