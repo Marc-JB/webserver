@@ -9,6 +9,10 @@
         "build": "tsc -b -v ./src/main/",
         "test": "tsc -b -v ./src/test/ && mocha -r esm --recursive --exit ./build/"
     },
+    "engineStrict": true,
+    "engines": {
+        "node": ">= 8.10.0"
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/Marc-JB/webserver.git"
