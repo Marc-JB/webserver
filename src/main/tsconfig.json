@@ -1,7 +1,7 @@
 {
     "extends": "../../tsconfig-base.json",
     "compilerOptions": {
-        "outDir": "../../build/core/main/"
+        "outDir": "../../build/src/main/"
     },
     "references": [
         {

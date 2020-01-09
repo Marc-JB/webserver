@@ -17,7 +17,6 @@ Check out [the example that is part of this project](./src/example/index.ts).
 - Automatically add methods (like HEAD when GET is registered), allow custom override.
 - Automatically add headers to response (like Date), allow custom override.
 - Add common HTTP Headers to HttpRequest/ResponseBuilder
-- Move /src/example/ out of /src and into /example/main/ and add /example/test/ with tests
 - Add more unit tests
 - Add integration tests
 - Add new authentication handling
