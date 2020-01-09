@@ -5,7 +5,7 @@ Experimental http server for node.
 Check out [the example that is part of this project](./src/example/index.ts).
 
 ## To do
-- Decorator support
+- Decorator support (temporary removed after rewrite)
   * @HttpGet, @HttpPost, etc.
   * @Route(string)
   * @Request, @Body, etc.
