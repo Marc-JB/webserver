@@ -22,3 +22,6 @@ Check out [the example that is part of this project](./example/main/Application.
   * Add integration tests
 - Add new authentication handling
 - Add a folder to serve statically
+- Resolve all @todo statements in code
+  * [./lib/main/Async.ts#L22](./lib/main/Async.ts#L22)
+  * [./src/main/request/HttpRequest.ts#L17](./src/main/request/HttpRequest.ts#L17)
