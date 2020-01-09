@@ -76,7 +76,7 @@ Check out [the example that is part of this project](./example/main/Application.
   rootEndpoint.post("/", () => throw new MethodNotAllowedError())
   rootEndpoint.onError((error: Error): HttpResponse => { ... })
   ```
-- add `new RedirectResponse(newLocation: string)` and `new NoContentResponse()`
+- Add `ResponseBuilder.redirectResponse(newLocation: string)` and `ResponseBuilder.noContentResponse()`
 - Add a folder to serve statically
 - Improve tests
   * Add more unit tests
