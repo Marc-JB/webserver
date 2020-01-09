@@ -1,4 +1,4 @@
-# @peregrine/webserver [![license](https://badgen.net/github/license/Marc-JB/webserver)](./LICENSE) [![npm](https://badgen.net/badge/icon/npm?icon=npm&label)](https://www.npmjs.com/package/@peregrine/webserver)
+# @peregrine/webserver [![license](https://badgen.net/github/license/Marc-JB/webserver?scale=1.1&color=cyan)](./LICENSE) [![npm](https://badgen.net/badge/icon/npm?icon=npm&color=cyan&scale=1.1&label)](https://www.npmjs.com/package/@peregrine/webserver)
 Experimental http server for node.
 
 ## Example
