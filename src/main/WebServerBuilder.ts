@@ -62,7 +62,6 @@ export class WebServerBuilder {
         }
 
         if (cert === null && key === null) {
-            console.warn("Creating server without TLS")
             return new WebServer(http2.createServer(), this.port ?? 80, CONNECTION_TYPE.HTTP2, this.developmentMessagesEnabled)
         } else if (cert !== null && key !== null) {
             return new WebServer(http2.createSecureServer({ allowHTTP1: true, cert, key }), this.port ?? 443, CONNECTION_TYPE.HTTPS2_WITH_HTTP1_FALLBACK, this.developmentMessagesEnabled)
