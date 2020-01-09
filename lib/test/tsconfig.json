@@ -1,9 +1,7 @@
 {
     "extends": "../../tsconfig-base.json",
     "compilerOptions": {
-        "outDir": "../../build/lib/test/",
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true
+        "outDir": "../../build/lib/test/"
     },
     "references": [
         {
