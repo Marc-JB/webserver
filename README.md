@@ -20,3 +20,4 @@ Check out [the example that is part of this project](./example/main/Application.
 - Add more unit tests
 - Add integration tests
 - Add new authentication handling
+- Add a folder to serve statically
