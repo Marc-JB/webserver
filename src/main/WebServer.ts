@@ -1,4 +1,6 @@
 import { Http2Server, Http2ServerRequest, Http2ServerResponse } from "http2"
+import { IncomingMessage as Http1ServerRequest, Server as Http1Server, ServerResponse as Http1ServerResponse } from "http"
+import { Server as Https1Server } from "https"
 import { Endpoint, ReadonlyResponseInf } from "./Endpoint"
 import { EndpointParent } from "./EndpointParentInf"
 import { HttpRequest } from "./request/HttpRequest"
@@ -31,7 +33,7 @@ export class WebServer implements EndpointParent {
     public readonly isHTTPS = this.connectionType !== CONNECTION_TYPE.HTTP1 && this.connectionType !== CONNECTION_TYPE.HTTP2
 
     constructor(
-        protected readonly server: Http2Server,
+        protected readonly server: Http2Server | Http1Server | Https1Server,
         public readonly port: string | number,
         public readonly connectionType: CONNECTION_TYPE,
         protected readonly developmentMessagesEnabled: boolean = false
@@ -39,7 +41,7 @@ export class WebServer implements EndpointParent {
         server.on("request", (req, res) => this.onRequest(req, res))
     }
 
-    private async onRequest(req: Http2ServerRequest, res: Http2ServerResponse) {
+    private async onRequest(req: Http2ServerRequest | Http1ServerRequest, res: Http2ServerResponse | Http1ServerResponse) {
         try {
             const request = new HttpRequest(req)
             const url = (req.url as string).split("/").filter(it => it !== "").join("/")
@@ -72,7 +74,7 @@ export class WebServer implements EndpointParent {
         }
     }
 
-    private writeResponse(responseObject: ReadonlyResponseInf, res: Http2ServerResponse): Promise<void> {
+    private writeResponse(responseObject: ReadonlyResponseInf, res: Http2ServerResponse | Http1ServerResponse): Promise<void> {
         res.writeHead(responseObject.code, Maps.rewriteMapAsObject(responseObject.headers))
 
         if(responseObject.body === null)

@@ -1,4 +1,5 @@
 import { Http2ServerRequest } from "http2"
+import { IncomingMessage as Http1ServerRequest } from "http"
 import { parse, UrlWithParsedQuery } from "url"
 import { HttpRequestInf } from "./HttpRequestInf"
 import { Maps, Lazy, StreamToPromise } from "../lib"
@@ -11,8 +12,8 @@ function parseUrl(url: string): UrlWithParams {
 }
 
 export class HttpRequest implements HttpRequestInf {
-    public readonly url: UrlWithParams = parseUrl(this.request.url)
-    public readonly method: string = this.request.method.toUpperCase()
+    public readonly url: UrlWithParams = parseUrl(this.request.url ?? "")
+    public readonly method: string = (this.request.method ?? "GET").toUpperCase()
 
     /** @todo lowercase all header keys */
     public readonly headers: ReadonlyMap<string, string | string[]> = Maps.rewriteObjectAsMap(this.request.headers)
@@ -27,5 +28,5 @@ export class HttpRequest implements HttpRequestInf {
 
     public readonly customSettings = new Map()
 
-    constructor(protected readonly request: Http2ServerRequest){}
+    constructor(protected readonly request: Http2ServerRequest | Http1ServerRequest){}
 }

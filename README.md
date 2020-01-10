@@ -66,7 +66,6 @@ Check out [the example that is part of this project](./example/main/Application.
 - Resolve all @todo statements in code
   * [./lib/main/Async.ts#L22](./lib/main/Async.ts#L22) (**v1.0+**)
   * [./src/main/request/HttpRequest.ts#L17](./src/main/request/HttpRequest.ts#L17)
-- Allow changing HTTP version
 
 **After version 1.0:**
 - Add more response types to the ResponseBuilder class
