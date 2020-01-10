@@ -5,6 +5,7 @@ Experimental http server for node.
 Check out [the example that is part of this project](./example/main/Application.ts).
 
 ## To do
+**Before version 1.0:**
 - Endpoint classes with @HttpGet, @HttpPost decorators
   ```typescript
   class UsersEndpoint {
@@ -30,14 +31,6 @@ Check out [the example that is part of this project](./example/main/Application.
       getUserById(@Param("id") userId: string){ /* ... */ }
   }
   ```
-- @RequestMiddleware, @ResponseMiddleware decorators in endpoint class methods
-  ```typescript
-  @Route("/users")
-  class UsersEndpoint {
-      @ResponseMiddleware
-      onResponse(/* ... */) { /* ... */ }
-  }
-  ```
 - Add custom body parsing (request + response)
   ```typescript
   rootEndpoint.addBodyParser("application/json", jsonParser)
@@ -46,16 +39,7 @@ Check out [the example that is part of this project](./example/main/Application.
   ```typescript
   endpoint.head(route: string, handler: (request: HttpRequest) => ResponseWithoutBody)
   ```
-- Make sure /index.html is called when the path is /
-- Automatically add methods (like HEAD when GET is registered), allow custom override.
-- Automatically add headers to response (like Date), allow custom override.
-- Add common HTTP Headers to HttpRequest/ResponseBuilder
-  ```typescript
-  httpRequest.getLanguagesArray()
-  responseBuilder.addDate(/* ... */)
-  responseBuilder.setCachePolicy(/* ... */)
-  ```
-- Add new authentication handling and @AuthenticationHandler & @Auth decorators for endpoint classes
+- Add new authentication handling and @AuthenticationHandler (**v1.0+**) & @Auth decorators for endpoint classes
   ```typescript
   class ProfileEndpoint {
       @HttpPut
@@ -71,17 +55,36 @@ Check out [the example that is part of this project](./example/main/Application.
       }
   }
   ```
-- Add custom error throwing and handling and add @ErrorHandler decorator for endpoint classes
+- Add custom error throwing and handling and add @ErrorHandler (**v1.0+**) decorator for endpoint classes
   ```typescript
   rootEndpoint.post("/", () => throw new MethodNotAllowedError())
   rootEndpoint.onError((error: Error): HttpResponse => { /* ... */ })
   ```
-- Add more response types to the ResponseBuilder class
-- Add a folder to serve statically
 - Improve tests
   * Add more unit tests
   * Add integration tests
 - Resolve all @todo statements in code
-  * [./lib/main/Async.ts#L22](./lib/main/Async.ts#L22)
+  * [./lib/main/Async.ts#L22](./lib/main/Async.ts#L22) (**v1.0+**)
   * [./src/main/request/HttpRequest.ts#L17](./src/main/request/HttpRequest.ts#L17)
 - Allow changing HTTP version
+
+**After version 1.0:**
+- Add more response types to the ResponseBuilder class
+- Add a folder to serve statically
+- Make sure /index.html is called when the path is /
+- Automatically add methods (like HEAD when GET is registered), allow custom override.
+- Automatically add headers to response (like Date), allow custom override.
+- Add common HTTP Headers to HttpRequest/ResponseBuilder
+  ```typescript
+  httpRequest.getLanguagesArray()
+  responseBuilder.addDate(/* ... */)
+  responseBuilder.setCachePolicy(/* ... */)
+  ```
+- @RequestMiddleware, @ResponseMiddleware decorators in endpoint class methods
+  ```typescript
+  @Route("/users")
+  class UsersEndpoint {
+      @ResponseMiddleware
+      onResponse(/* ... */) { /* ... */ }
+  }
+  ```
