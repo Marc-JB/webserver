@@ -9,7 +9,7 @@ Check out [the example that is part of this project](./example/main/Application.
   ```typescript
   class UsersEndpoint {
       @HttpGet
-      getUsers( ... ){ ... }
+      getUsers(/* ... */){ /* ... */ }
   }
   ```
 - @Route(string) decorator support to endpoint classes & class methods
@@ -18,7 +18,7 @@ Check out [the example that is part of this project](./example/main/Application.
   class UsersEndpoint {
       @HttpGet
       @Route("/{id}")
-      getUserById( ... ){ ... }
+      getUserById(/* ... */){ /* ... */ }
   }
   ```
 - @Request, @Body, @Query(string) decorators in endpoint class methods
@@ -27,7 +27,7 @@ Check out [the example that is part of this project](./example/main/Application.
   class UsersEndpoint {
       @HttpGet
       @Route("/{id}")
-      getUserById(@Param("id") userId: string){ ... }
+      getUserById(@Param("id") userId: string){ /* ... */ }
   }
   ```
 - @RequestMiddleware, @ResponseMiddleware decorators in endpoint class methods
@@ -35,7 +35,7 @@ Check out [the example that is part of this project](./example/main/Application.
   @Route("/users")
   class UsersEndpoint {
       @ResponseMiddleware
-      onResponse( ... ) { ... }
+      onResponse(/* ... */) { /* ... */ }
   }
   ```
 - Add custom body parsing (request + response)
@@ -52,15 +52,15 @@ Check out [the example that is part of this project](./example/main/Application.
 - Add common HTTP Headers to HttpRequest/ResponseBuilder
   ```typescript
   httpRequest.getLanguagesArray()
-  responseBuilder.addDate(...)
-  responseBuilder.setCachePolicy(...)
+  responseBuilder.addDate(/* ... */)
+  responseBuilder.setCachePolicy(/* ... */)
   ```
 - Add new authentication handling and @AuthenticationHandler & @Auth decorators for endpoint classes
   ```typescript
   class ProfileEndpoint {
       @HttpPut
       @Route("/{profileId}")
-      updateProfile(@Auth authenticatedUser: User){ ... }
+      updateProfile(@Auth authenticatedUser: User){ /* ... */ }
 
       @AuthenticationHandler
       onVerifyAuthentication(request: HttpRequest) {
@@ -71,10 +71,10 @@ Check out [the example that is part of this project](./example/main/Application.
       }
   }
   ```
-- Add custom error throwing and handling
+- Add custom error throwing and handling and add @ErrorHandler decorator for endpoint classes
   ```typescript
   rootEndpoint.post("/", () => throw new MethodNotAllowedError())
-  rootEndpoint.onError((error: Error): HttpResponse => { ... })
+  rootEndpoint.onError((error: Error): HttpResponse => { /* ... */ })
   ```
 - Add more response types to the ResponseBuilder class
 - Add a folder to serve statically
@@ -84,3 +84,4 @@ Check out [the example that is part of this project](./example/main/Application.
 - Resolve all @todo statements in code
   * [./lib/main/Async.ts#L22](./lib/main/Async.ts#L22)
   * [./src/main/request/HttpRequest.ts#L17](./src/main/request/HttpRequest.ts#L17)
+- Allow changing HTTP version
