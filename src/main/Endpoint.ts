@@ -159,6 +159,7 @@ export class Endpoint implements EndpointParent {
          * be available yet when `jsonParserMiddleware` requests it.
          */
 
+        /** */
         let responseObject: ResponseInf | null = null
 
         // Request middleware
