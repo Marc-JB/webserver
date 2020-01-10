@@ -63,11 +63,9 @@ Check out [the example that is part of this project](./example/main/Application.
 - Improve tests
   * Add more unit tests
   * Add integration tests
-- Resolve all @todo statements in code
-  * [./lib/main/Async.ts#L22](./lib/main/Async.ts#L22) (**v1.0+**)
-  * [./src/main/request/HttpRequest.ts#L17](./src/main/request/HttpRequest.ts#L17)
 
 **After version 1.0:**
+- Resolve @todo statement at [./lib/main/Async.ts#L22](./lib/main/Async.ts#L22)
 - Add more response types to the ResponseBuilder class
 - Add a folder to serve statically
 - Make sure /index.html is called when the path is /

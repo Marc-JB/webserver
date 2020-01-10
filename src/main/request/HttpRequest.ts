@@ -11,12 +11,18 @@ function parseUrl(url: string): UrlWithParams {
     return parsedWithoutParams as UrlWithParams
 }
 
+function parseHeadersObject(obj: { [key: string]: string | string[] | undefined }){
+    const newObj: { [key: string]: string | string[] | undefined } = {}
+    for(const key in obj)
+        newObj[key.toLowerCase()] = obj[key]
+    return newObj
+}
+
 export class HttpRequest implements HttpRequestInf {
     public readonly url: UrlWithParams = parseUrl(this.request.url ?? "")
     public readonly method: string = (this.request.method ?? "GET").toUpperCase()
 
-    /** @todo lowercase all header keys */
-    public readonly headers: ReadonlyMap<string, string | string[]> = Maps.rewriteObjectAsMap(this.request.headers)
+    public readonly headers: ReadonlyMap<string, string | string[]> = Maps.rewriteObjectAsMap(parseHeadersObject(this.request.headers))
     public readonly dataSaverEnabled = this.headers.has("save-data") ? this.headers.get("save-data") === "on" : null
     public readonly doNotTrackEnabled = this.headers.has("dnt") ? this.headers.get("dnt") === "1" : null
 
