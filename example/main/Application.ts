@@ -46,6 +46,8 @@ export class Application {
             return new ResponseBuilder().setStatusCode(200).setHtmlBody(body).build()
         })
 
+        root.get("index.html", () => ResponseBuilder.redirectResponse("./", true))
+
         root.get("duplicate.html", () => new ResponseBuilder().setStatusCode(200).build())
         root.get("duplicate.html", () => new ResponseBuilder().setStatusCode(200).build())
 
