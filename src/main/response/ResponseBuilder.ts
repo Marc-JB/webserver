@@ -1,11 +1,11 @@
 import { ResponseInf } from "../Endpoint"
 
 export class ResponseBuilder {
-    protected code: number = 200
+    protected code: number | "auto" = "auto"
     protected body: string | null = null
     protected readonly headers: Map<string, number | string | string[]> = new Map()
 
-    public setStatusCode(status: number): this {
+    public setStatusCode(status: number | "auto"): this {
         this.code = status
         return this
     }
@@ -46,9 +46,19 @@ export class ResponseBuilder {
 
     public build(): Readonly<ResponseInf> {
         return {
-            code: this.code,
+            code: this.code === "auto" ? this.body === null ? 204 : 200 : this.code,
             body: this.body,
             headers: this.headers
+        }
+    }
+
+    public static redirectResponse(newLocation: string, isPermanentRedirect: boolean = false): Readonly<ResponseInf> {
+        const headers = new Map()
+        headers.set("Location", newLocation)
+        return {
+            code: isPermanentRedirect ? 308 : 307,
+            body: null,
+            headers: headers
         }
     }
 }
