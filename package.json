@@ -1,6 +1,6 @@
 {
     "name": "@peregrine/webserver",
-    "version": "0.4.0-alpha",
+    "version": "0.5.0-alpha",
     "description": "Experimental http server for node",
     "main": "./build/core/main/index.js",
     "typings": "./build/core/main/index.d.ts",
