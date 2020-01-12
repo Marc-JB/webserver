@@ -1,5 +1,4 @@
-import { Async } from "../../lib/main/index"
-import { EndpointParent, requestCheckOnChildEndpoint } from "./EndpointParent"
+import { Async, Json } from "../../lib/main/index"
 import { HttpRequest, ReadonlyHttpRequest } from "./request/HttpRequest"
 import { RequestHandler } from "./request/RequestHandler"
 import { EndpointChild } from "./EndpointChild"
@@ -14,14 +13,14 @@ export type AsyncResponseMiddleware = (request: ReadonlyHttpRequest, response: R
 export type RequestHandlerCallback = (request: ReadonlyHttpRequest) => Async.MaybeAsync<ReadonlyResponseInf | ResponseInf | null>
 export type AsyncRequestHandlerCallback = (request: ReadonlyHttpRequest) => Promise<ReadonlyResponseInf | ResponseInf | null>
 
-export class Endpoint implements EndpointParent, EndpointChild {
+export class Endpoint implements EndpointChild {
     public readonly path: string
     public readonly handlers: Set<RequestHandler> = new Set()
     public readonly childEndpoints: Set<Endpoint> = new Set()
     public readonly requestMiddleware: Set<AsyncRequestMiddleware> = new Set()
     public readonly responseMiddleware: Set<AsyncResponseMiddleware> = new Set()
 
-    constructor(path: string, public readonly parent: EndpointParent | null = null){
+    constructor(path: string, public readonly parent: Endpoint | null = null){
         this.path = path.split("/").filter(it => it !== "").join("/")
     }
 
@@ -170,7 +169,20 @@ export class Endpoint implements EndpointParent, EndpointChild {
             await requestMiddleware(request)
 
         // Loop trough child endpoints to check if they have a reponse ready
-        let responseObject = await requestCheckOnChildEndpoint(this, url, request)
+        let responseObject: ReadonlyResponseInf | ResponseInf | null = null
+
+        // Loop trough child endpoints to check if they have a reponse ready
+        for(const endpoint of this.childEndpoints) {
+            if(url.startsWith(endpoint.fullPath)) {
+                const r = await endpoint.onRequest(url, request)
+                if(r !== null) {
+                    if(responseObject !== null)
+                        throw new Error(`${url} is registered on 2 different endpoints!`)
+
+                    responseObject = r
+                }
+            }
+        }
 
         // Loop trough own handlers to check if they have a response ready
         for(const handler of this.handlers) {
@@ -198,7 +210,7 @@ export class Endpoint implements EndpointParent, EndpointChild {
         return responseObject
     }
 
-    public toJSON(): object {
+    public toJSON(): Json {
         return {
             path: `/${this.path}`,
             middleware: {

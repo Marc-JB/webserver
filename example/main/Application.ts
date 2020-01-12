@@ -24,7 +24,7 @@ export class Application {
         this.input.once("ctrl+c", () => this.stop())
         this.input.once("escape", () => this.stop())
 
-        const root = this.server.createEndpointAtPath("/")
+        const root = this.server.root
 
         root.addRequestMiddleware(request => {
             request.customSettings.set("requestedLanguage", request.url.query["lang"] === "nl" ? "nl-NL" : "en-US")
@@ -72,14 +72,13 @@ export class Application {
             return response
         })
 
-        this.input.on("s", () => console.log("Server: " + JSON.stringify(this.server?.toJSON(), undefined, 4)))
-        this.input.on("c", () => console.log("Server children: " + JSON.stringify(this.server?.toJSON().children, undefined, 4)))
+        this.input.on("i", () => console.log("Server: " + JSON.stringify(this.server?.toJSON(), undefined, 4)))
 
-        console.log(`Server active and operational on http${this.server.isHTTPS ? "s" : ""}://localhost:${this.server.port}/.`)
+        console.log(`Server active and operational on http${this.server.isHTTPS ? "s" : ""}://localhost:${this.server.port}/. Press 'i' for info. Press 'esc' or 'ctrl'+'c' to exit.`)
     }
 
     async stop() {
-        console.log('Shutting down HTTP server...')
+        console.log("Shutting down HTTP server...")
         await this.server?.close()
         console.log("Server succesfully shut down.")
         process.exit(0)

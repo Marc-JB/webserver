@@ -1,10 +1,10 @@
-import { AsyncRequestHandlerCallback } from "../Endpoint"
+import { AsyncRequestHandlerCallback, Endpoint } from "../Endpoint"
 import { HttpRequest } from "./HttpRequest"
 import { ParamMatchType, ParamMatchTypes } from "./ParamMatchTypes"
 import { EndpointChild } from "../EndpointChild"
-import { EndpointParent } from "../EndpointParent"
 import { ResponseInf, ReadonlyResponseInf } from "../response/ResponseInf"
 import { Url } from "../Url"
+import { Json } from "../../../lib/main"
 
 /**
  * This matches the query/anchor part of the url. Will also match if there's no query or anchor.
@@ -25,7 +25,7 @@ export class RequestHandler implements EndpointChild {
         path: string,
         public readonly method: string,
         public readonly handler: AsyncRequestHandlerCallback,
-        public readonly parent: EndpointParent | null = null,
+        public readonly parent: Endpoint | null = null,
         protected readonly paramMatchType: ParamMatchType = ParamMatchTypes.DEFAULT
     ){
         this.path = path.split("/").filter(it => it !== "").join("/")
@@ -55,7 +55,7 @@ export class RequestHandler implements EndpointChild {
         return params
     }
 
-    public toJSON() {
+    public toJSON(): Json {
         return `${this.method}: /${this.path}`
     }
 
