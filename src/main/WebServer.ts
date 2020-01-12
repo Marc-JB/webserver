@@ -3,7 +3,7 @@ import { IncomingMessage as Http1ServerRequest, Server as Http1Server, ServerRes
 import { Server as Https1Server } from "https"
 import { Endpoint } from "./Endpoint"
 import { HttpRequestImpl } from "./request/HttpRequestImpl"
-import { Maps, Json } from "../../lib/main/index"
+import { Maps, Json, JSObject } from "../../lib/main/index"
 import { WebServerBuilder } from "./WebServerBuilder"
 import { ResponseBuilder } from "./response/ResponseBuilder"
 import { PageBuilder } from "./response/PageBuilder"
@@ -13,7 +13,7 @@ export enum CONNECTION_TYPE {
     HTTP1, HTTPS1, HTTP2, HTTPS2_WITH_HTTP1_FALLBACK, HTTPS2
 }
 
-export class WebServer {
+export class WebServer implements JSObject {
     public readonly root = new Endpoint("")
 
     protected isListening = false
