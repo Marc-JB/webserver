@@ -9,39 +9,24 @@ export interface ParamMatchInf {
 export class ParamMatchTypes {
     static get NONE(): ParamMatchInf {
         return new class implements ParamMatchInf {
-            keyMatcher(_: string): string[] { return [] }
-
-            valueMatcher(q: string): string { return q }
+            keyMatcher = (_: string): string[] => []
+            valueMatcher = (q: string): string => q
         }()
     }
 
-    /**
-     * Default param resolver, put params between `{` and `}` (like: `/books/{id}/`)
-     */
+    /** Default param resolver, put params between `{` and `}` (like: `/books/{id}/`) */
     static get DEFAULT(): ParamMatchInf {
         return new class implements ParamMatchInf {
-            keyMatcher(q: string): string[] {
-                return q.match(/{([^\/{}]+)}/g) ?? []
-            }
-
-            valueMatcher(q: string): string {
-                return q.replace(/{[^\/{}]+}/g, `([^\/]+)`)
-            }
+            keyMatcher = (q: string): string[] => q.match(/{([^\/{}]+)}/g) ?? []
+            valueMatcher = (q: string): string => q.replace(/{[^\/{}]+}/g, `([^\/]+)`)
         }()
     }
 
-    /**
-     * Express.js-style param resolver, put params behind a `:` (like: `/books/:id/`)
-     */
+    /** Express.js-style param resolver, put params behind a `:` (like: `/books/:id/`) */
     static get EXPRESSJS(): ParamMatchInf {
         return new class implements ParamMatchInf {
-            keyMatcher(q: string): string[] {
-                return q.match(/:([^\/:]+)/g) ?? []
-            }
-
-            valueMatcher(q: string): string {
-                return q.replace(/:[^\/:]+/g, `([^\/]+)`)
-            }
+            keyMatcher = (q: string): string[] => q.match(/:([^\/:]+)/g) ?? []
+            valueMatcher = (q: string): string => q.replace(/:[^\/:]+/g, `([^\/]+)`)
         }()
     }
 }
