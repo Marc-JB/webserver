@@ -1,4 +1,4 @@
-import { ResponseInf } from "../Endpoint"
+import { ReadonlyResponseInf } from "./ResponseInf"
 import { ContentEncoding } from "../lib"
 
 export class ResponseBuilder {
@@ -59,7 +59,7 @@ export class ResponseBuilder {
         }
     }
 
-    public build(): Readonly<ResponseInf> {
+    public build(): ReadonlyResponseInf {
         return {
             code: this.code === "auto" ? this.body === null ? 204 : 200 : this.code,
             body: this.body,
@@ -67,7 +67,7 @@ export class ResponseBuilder {
         }
     }
 
-    public static redirectResponse(newLocation: string, isPermanentRedirect: boolean = false): Readonly<ResponseInf> {
+    public static redirectResponse(newLocation: string, isPermanentRedirect: boolean = false): ReadonlyResponseInf {
         const headers = new Map()
         headers.set("Location", newLocation)
         return {

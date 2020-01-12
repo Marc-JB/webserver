@@ -1,32 +1,27 @@
 import { Async } from "../../lib/main/index"
-import { EndpointParent } from "./EndpointParentInf"
-import { HttpRequestInf, ReadonlyHttpRequestInf } from "./request/HttpRequestInf"
+import { EndpointParent, requestCheckOnChildEndpoint } from "./EndpointParent"
+import { HttpRequest, ReadonlyHttpRequest } from "./request/HttpRequest"
 import { RequestHandler } from "./request/RequestHandler"
-import { UrlWithParsedQuery } from "url"
+import { EndpointChild } from "./EndpointChild"
+import { ResponseInf, ReadonlyResponseInf } from "./response/ResponseInf"
 
-export interface ResponseInf extends ReadonlyResponseInf {
-    code: number
-    body: string | null
-    headers: Map<string, number | string | string[]>
-}
+export type RequestMiddleware = (request: HttpRequest) => Async.MaybeAsync<void>
+export type AsyncRequestMiddleware = (request: HttpRequest) => Promise<void>
 
-export interface ReadonlyResponseInf {
-    readonly code: number
-    readonly body: string | null
-    readonly headers: ReadonlyMap<string, number | string | string[]>
-}
+export type ResponseMiddleware = (request: ReadonlyHttpRequest, response: ResponseInf | null) => Async.MaybeAsync<ReadonlyResponseInf | ResponseInf | null>
+export type AsyncResponseMiddleware = (request: ReadonlyHttpRequest, response: ResponseInf | null) => Promise<ReadonlyResponseInf | ResponseInf | null>
 
-export type RequestHandlerCallback = (request: ReadonlyHttpRequestInf) => Async.MaybeAsync<ResponseInf | null>
-export type AsyncRequestHandlerCallback = (request: ReadonlyHttpRequestInf) => Promise<ResponseInf | null>
+export type RequestHandlerCallback = (request: ReadonlyHttpRequest) => Async.MaybeAsync<ReadonlyResponseInf | ResponseInf | null>
+export type AsyncRequestHandlerCallback = (request: ReadonlyHttpRequest) => Promise<ReadonlyResponseInf | ResponseInf | null>
 
-export class Endpoint implements EndpointParent {
+export class Endpoint implements EndpointParent, EndpointChild {
     public readonly path: string
     public readonly handlers: Set<RequestHandler> = new Set()
     public readonly childEndpoints: Set<Endpoint> = new Set()
-    public readonly requestMiddleware: Set<((request: HttpRequestInf) => Promise<void>)> = new Set()
-    public readonly responseMiddleware: Set<((request: ReadonlyHttpRequestInf, response: ResponseInf | null) => Promise<ResponseInf | null>)> = new Set()
+    public readonly requestMiddleware: Set<AsyncRequestMiddleware> = new Set()
+    public readonly responseMiddleware: Set<AsyncResponseMiddleware> = new Set()
 
-    constructor(path: string, public readonly parent: EndpointParent){
+    constructor(path: string, public readonly parent: EndpointParent | null = null){
         this.path = path.split("/").filter(it => it !== "").join("/")
     }
 
@@ -35,7 +30,7 @@ export class Endpoint implements EndpointParent {
      * @returns a string, containing the path, with "/" slashes. "/" characters on the beginning and end of the path are removed
      */
     public get fullPath(): string {
-        return (this.parent.fullPath + "/" + this.path).split("/").filter(it => it !== "").join("/")
+        return ((this.parent?.fullPath ?? "") + "/" + this.path).split("/").filter(it => it !== "").join("/")
     }
 
     /**
@@ -105,6 +100,17 @@ export class Endpoint implements EndpointParent {
     }
 
     /**
+     * Registers a request on the given route on this endpoint for all methods
+     * @param route the route of the request, relative to the endpoint
+     * @param handler a function that takes the request and returns a response or throws an error
+     * @returns this endpoint
+     */
+    public all(route: string, handler: RequestHandlerCallback){
+        this.attachHandler("*", route, handler)
+        return this
+    }
+
+    /**
      * Registeres a request for the given method on the given route on this endpoint
      * @param method the HTTP method to register the handler on
      * @param route the route of the request, relative to the endpoint
@@ -129,7 +135,7 @@ export class Endpoint implements EndpointParent {
      * Adds the middleware to this endpoint
      * @param middleware a function that takes a request and modifies it
      */
-    public addRequestMiddleware(middleware: (request: HttpRequestInf) => void | Promise<void>){
+    public addRequestMiddleware(middleware: RequestMiddleware){
         this.requestMiddleware.add(Async.wrapInPromise(middleware))
     }
 
@@ -137,11 +143,11 @@ export class Endpoint implements EndpointParent {
      * Adds the middleware to this endpoint
      * @param middleware a function that takes a request and modifies it
      */
-    public addResponseMiddleware(middleware: (request: ReadonlyHttpRequestInf, response: ResponseInf | null) => Async.MaybeAsync<ResponseInf | null>){
+    public addResponseMiddleware(middleware: ResponseMiddleware){
         this.responseMiddleware.add(Async.wrapInPromise(middleware))
     }
 
-    public async onRequest(url: string, request: HttpRequestInf): Promise<ResponseInf | null> {
+    public async onRequest(url: string, request: HttpRequest): Promise<ReadonlyResponseInf | ResponseInf | null> {
         /**
          * Note that async functions in the function are not resolved in parallel.
          * This is because users can modify the execution order of middleware and handlers.
@@ -159,39 +165,21 @@ export class Endpoint implements EndpointParent {
          * be available yet when `jsonParserMiddleware` requests it.
          */
 
-        /** */
-        let responseObject: ResponseInf | null = null
-
         // Request middleware
         for (const requestMiddleware of this.requestMiddleware)
             await requestMiddleware(request)
 
         // Loop trough child endpoints to check if they have a reponse ready
-        for(const endpoint of this.childEndpoints) {
-            if(url.startsWith(endpoint.fullPath)) {
-                const r = await endpoint.onRequest(url, request)
-                if(r !== null) {
-                    if(responseObject !== null)
-                        throw new Error(`${url} is registered on 2 different endpoints!`)
-
-                    responseObject = r
-                }
-            }
-        }
+        let responseObject = await requestCheckOnChildEndpoint(this, url, request)
 
         // Loop trough own handlers to check if they have a response ready
         for(const handler of this.handlers) {
-            if (handler.isMatch(url) && request.method.toUpperCase() === handler.method) {
+            const r = await handler.onRequest(url, request)
+            if(r !== null) {
                 if(responseObject !== null)
                     throw new Error(`[${request.method.toUpperCase()}: ${url}] is registered 2 times!`)
 
-                const requestUrl = (request.url as UrlWithParsedQuery & { params: Map<string, string> })
-
-                for(const [key, value] of handler.getParams(url))
-                    requestUrl.params.set(key, value)
-
-                responseObject = await handler.invoke(request)
-                requestUrl.params.clear()
+                responseObject = r
             }
         }
 
@@ -202,7 +190,7 @@ export class Endpoint implements EndpointParent {
              * because the middleware that is called here can return null,
              * thus modifying the responseObject to be null.
              */
-            const r = await responseMiddleware(request, responseObject)
+            const r = await responseMiddleware(request, responseObject as ResponseInf | null)
             if(r !== null)
                 responseObject = r
         }

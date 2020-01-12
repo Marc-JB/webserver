@@ -1,5 +1,5 @@
 export * from "./Endpoint"
-export * from "./request/HttpRequestInf"
+export * from "./request/HttpRequest"
 export * from "./Url"
 export * from "./request/RequestHandler"
 export * from "./response/ResponseBuilder"

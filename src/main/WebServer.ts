@@ -1,13 +1,15 @@
 import { Http2Server, Http2ServerRequest, Http2ServerResponse } from "http2"
 import { IncomingMessage as Http1ServerRequest, Server as Http1Server, ServerResponse as Http1ServerResponse } from "http"
 import { Server as Https1Server } from "https"
-import { Endpoint, ReadonlyResponseInf } from "./Endpoint"
-import { EndpointParent } from "./EndpointParentInf"
-import { HttpRequest } from "./request/HttpRequest"
+import { Endpoint } from "./Endpoint"
+import { EndpointParent, requestCheckOnChildEndpoint } from "./EndpointParent"
+import { HttpRequestImpl } from "./request/HttpRequestImpl"
 import { Maps } from "../../lib/main/index"
 import { WebServerBuilder } from "./WebServerBuilder"
 import { ResponseBuilder } from "./response/ResponseBuilder"
 import { PageBuilder } from "./response/PageBuilder"
+import { ReadonlyResponseInf, ResponseInf } from "./response/ResponseInf"
+import { HttpRequest } from "./request/HttpRequest"
 
 export enum CONNECTION_TYPE {
     HTTP1, HTTPS1, HTTP2, HTTPS2_WITH_HTTP1_FALLBACK, HTTPS2
@@ -38,29 +40,17 @@ export class WebServer implements EndpointParent {
         public readonly connectionType: CONNECTION_TYPE,
         protected readonly developmentMessagesEnabled: boolean = false
     ) {
-        server.on("request", (req, res) => this.onRequest(req, res))
+        server.on("request", (req, res) => this.onHttpRequest(req, res))
     }
 
-    private async onRequest(req: Http2ServerRequest | Http1ServerRequest, res: Http2ServerResponse | Http1ServerResponse) {
+    public async onRequest(url: string, request: HttpRequest): Promise<ReadonlyResponseInf | ResponseInf | null> {
+        return requestCheckOnChildEndpoint(this, url, request)
+    }
+
+    private async onHttpRequest(req: Http2ServerRequest | Http1ServerRequest, res: Http2ServerResponse | Http1ServerResponse) {
         try {
-            const request = new HttpRequest(req)
             const url = (req.url as string).split("/").filter(it => it !== "").join("/")
-
-            let responseObject: ReadonlyResponseInf | null = null
-
-            // Loop trough child endpoints to check if they have a reponse ready
-            for(const endpoint of this.childEndpoints) {
-                if(url.startsWith(endpoint.fullPath)) {
-                    const r = await endpoint.onRequest(url, request)
-                    if(r !== null) {
-                        if(responseObject !== null)
-                            throw new Error(`${url} is registered on 2 different endpoints!`)
-
-                        responseObject = r
-                    }
-                }
-            }
-
+            const responseObject = await this.onRequest(url, new HttpRequestImpl(req))
             await this.writeResponse(responseObject ?? new ResponseBuilder().setStatusCode(404).setHtmlBody(PageBuilder.createPage("Page not Found")).build(), res)
         } catch (error) {
             console.error(error)

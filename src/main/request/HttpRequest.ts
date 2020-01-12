@@ -1,36 +1,38 @@
-import { Http2ServerRequest } from "http2"
-import { IncomingMessage as Http1ServerRequest } from "http"
-import { HttpRequestInf } from "./HttpRequestInf"
-import { Maps, Lazy, StreamToPromise, ContentEncoding } from "../lib"
-import { UrlWithParams, parseUrl, parseUrlWithParams } from "../Url"
-import { parseHeadersObject, parseAcceptHeader, parseCookieHeader } from "./Parsers"
+import { UrlWithParams, Url } from "../Url"
+import { ContentEncoding } from "../lib";
 
-export class HttpRequest implements HttpRequestInf {
-    public readonly url: UrlWithParams = parseUrlWithParams(this.request.url ?? "")
-    public readonly method: string = (this.request.method ?? "GET").toUpperCase()
+export interface ReadonlyHttpRequest {
+    readonly url: UrlWithParams
+    readonly method: string
 
-    public readonly headers: ReadonlyMap<string, string | string[]> = Maps.rewriteObjectAsMap(parseHeadersObject(this.request.headers))
+    readonly headers: ReadonlyMap<string, string | string[]>
+    /**
+     * True if a Save-Data: on header is sent,
+     * False if a Save-Data: off header is sent,
+     * Null if no Save-Data header was sent
+     */
+    readonly dataSaverEnabled: boolean | null
+    /**
+     * True if a DNT: 1 header is sent (don't track me),
+     * False if a DNT: 0 header is sent (track me),
+     * Null if no DNT header was sent (no choice made)
+     */
+    readonly doNotTrackEnabled: boolean | null
 
-    public readonly dataSaverEnabled = this.headers.has("save-data") ? this.headers.get("save-data") === "on" : null
-    public readonly doNotTrackEnabled = this.headers.has("dnt") ? this.headers.get("dnt") === "1" : null
+    readonly userAgent: string | null
+    readonly referer: Url | null
+    readonly cookies: ReadonlyMap<string, string>
+    readonly acceptedLanguages: ReadonlySet<[string, number]>
+    readonly acceptedContentTypes: ReadonlySet<[string, number]>
+    readonly acceptedContentEncodings: ReadonlySet<[ContentEncoding | "*", number]>
+    readonly acceptedContentCharsets: ReadonlySet<[string, number]>
 
-    public readonly referer = this.headers.has("referer") ? parseUrl(this.headers.get("referer") as string) : null
-    public readonly userAgent = (this.headers.get("user-agent") ?? null) as string | null
+    readonly body: Promise<string | null>
 
-    public readonly acceptedContentTypes = parseAcceptHeader(this.headers.get("accept") as string)
-    public readonly acceptedLanguages = parseAcceptHeader(this.headers.get("accept-language") as string)
-    public readonly acceptedContentEncodings = parseAcceptHeader(this.headers.get("accept-encoding") as string) as ReadonlySet<[ContentEncoding | "*", number]>
-    public readonly acceptedContentCharsets = parseAcceptHeader(this.headers.get("accept-charset") as string)
+    /** Options passed trough by request middleware */
+    readonly customSettings: ReadonlyMap<string, any>
+}
 
-    public readonly cookies = parseCookieHeader(this.headers.get("cookie") as string ?? "")
-
-    private readonly _body = new Lazy(() => new StreamToPromise(this.request).getResult())
-
-    public get body(): Promise<string | null> {
-        return this._body.value
-    }
-
-    public readonly customSettings = new Map()
-
-    constructor(protected readonly request: Http2ServerRequest | Http1ServerRequest){}
+export interface HttpRequest extends ReadonlyHttpRequest {
+    readonly customSettings: Map<string, any>
 }
