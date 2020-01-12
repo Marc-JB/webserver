@@ -1,4 +1,5 @@
 import { ResponseInf } from "../Endpoint"
+import { ContentEncoding } from "../lib"
 
 export class ResponseBuilder {
     protected code: number | "auto" = "auto"
@@ -37,11 +38,25 @@ export class ResponseBuilder {
         return this.setHeader("Content-Type", value)
     }
 
+    public setContentEncoding(values: ContentEncoding[]): this {
+        return this.setHeader("Content-Encoding", values.join(", "))
+    }
+
     public setCORS(allowedOrigins: string = "*", allowedMethods: string[] = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], allowedHeaders: string[] = ["X-Requested-With", "Content-Type"]): this {
         return this
             .setHeader("Access-Control-Allow-Origin", allowedOrigins)
             .setHeader("Access-Control-Allow-Methods", allowedMethods.join(", "))
             .setHeader("Access-Control-Allow-Headers", allowedHeaders.join(", "))
+    }
+
+    public setClientShouldDownloadBody(shouldDownload: boolean, filename: string | null = null) {
+        if(this.headers.has("Content-Disposition")) {
+            this.headers.delete("Content-Disposition")
+        }
+
+        if(shouldDownload) {
+            this.headers.set("Content-Disposition", "attachment" + filename === null ? "" : `; filename="${filename}"`)
+        }
     }
 
     public build(): Readonly<ResponseInf> {

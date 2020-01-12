@@ -1,4 +1,5 @@
-import { UrlWithParams } from "./UrlWithParams"
+import { UrlWithParams, Url } from "./UrlWithParams"
+import { ContentEncoding } from "../lib";
 
 export interface ReadonlyHttpRequestInf {
     readonly url: UrlWithParams
@@ -17,6 +18,14 @@ export interface ReadonlyHttpRequestInf {
      * Null if no DNT header was sent (no choice made)
      */
     readonly doNotTrackEnabled: boolean | null
+
+    readonly userAgent: string | null
+    readonly referer: Url | null
+    readonly cookies: ReadonlyMap<string, string>
+    readonly acceptedLanguages: ReadonlySet<[string, number]>
+    readonly acceptedContentTypes: ReadonlySet<[string, number]>
+    readonly acceptedContentEncodings: ReadonlySet<[ContentEncoding | "*", number]>
+    readonly acceptedContentCharsets: ReadonlySet<[string, number]>
 
     readonly body: Promise<string | null>
 

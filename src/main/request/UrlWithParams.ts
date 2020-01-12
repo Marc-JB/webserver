@@ -1,5 +1,7 @@
-import { UrlWithParsedQuery } from "url"
+import { UrlWithParsedQuery as Url } from "url"
 
-export interface UrlWithParams extends UrlWithParsedQuery {
+export { Url }
+
+export interface UrlWithParams extends Url {
     readonly params: ReadonlyMap<string, string>
 }
