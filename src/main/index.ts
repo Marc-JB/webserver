@@ -1,6 +1,6 @@
 export * from "./Endpoint"
 export * from "./request/HttpRequestInf"
-export * from "./request/UrlWithParams"
+export * from "./Url"
 export * from "./request/RequestHandler"
 export * from "./response/ResponseBuilder"
 export * from "./WebServer"

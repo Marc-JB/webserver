@@ -1,4 +1,4 @@
-import { UrlWithParams, Url } from "./UrlWithParams"
+import { UrlWithParams, Url } from "../Url"
 import { ContentEncoding } from "../lib";
 
 export interface ReadonlyHttpRequestInf {
