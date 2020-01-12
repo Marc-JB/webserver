@@ -3,7 +3,6 @@ import http2 from "http2"
 import https1 from "https"
 import http1 from "http"
 import { WebServer, CONNECTION_TYPE } from "./WebServer"
-import { JSObject } from "../../lib/main"
 
 type CertificateType = string | Buffer | fs.FileHandle
 
