@@ -4,12 +4,13 @@ import { HttpRequest } from "./HttpRequest"
 import { Maps, Lazy, StreamToPromise, ContentEncoding } from "../lib"
 import { UrlWithParams, parseUrl, parseUrlWithParams } from "../Url"
 import { parseHeadersObject, parseAcceptHeader, parseCookieHeader } from "./Parsers"
+import { Json } from "../../../lib/main"
 
 export class HttpRequestImpl implements HttpRequest {
-    public readonly url: UrlWithParams = parseUrlWithParams(this.request.url ?? "")
-    public readonly method: string = (this.request.method ?? "GET").toUpperCase()
-
     public readonly headers: ReadonlyMap<string, string | string[]> = Maps.rewriteObjectAsMap(parseHeadersObject(this.request.headers))
+
+    public readonly url: UrlWithParams = parseUrlWithParams(this.headers.get(":scheme") + "://" + this.headers.get(":authority") + this.request.url ?? "")
+    public readonly method: string = (this.request.method ?? "GET").toUpperCase()
 
     public readonly dataSaverEnabled = this.headers.has("save-data") ? this.headers.get("save-data") === "on" : null
     public readonly doNotTrackEnabled = this.headers.has("dnt") ? this.headers.get("dnt") === "1" : null
@@ -33,4 +34,22 @@ export class HttpRequestImpl implements HttpRequest {
     public readonly customSettings = new Map()
 
     constructor(protected readonly request: Http2ServerRequest | Http1ServerRequest){}
+
+    toJSON(): Json {
+        return {
+            url: this.url,
+            method: this.method,
+            headers: Maps.rewriteMapAsObject(this.headers),
+            dataSaverEnabled: this.dataSaverEnabled,
+            doNotTrackEnabled: this.doNotTrackEnabled,
+            referer: this.referer,
+            userAgent: this.userAgent,
+            acceptedContentTypes: Array.from(this.acceptedContentTypes).map(it => `${it[0]} (${it[1]})`),
+            acceptedLanguages: Array.from(this.acceptedLanguages).map(it => `${it[0]} (${it[1]})`),
+            acceptedContentEncodings: Array.from(this.acceptedContentEncodings).map(it => `${it[0]} (${it[1]})`),
+            acceptedContentCharsets: Array.from(this.acceptedContentCharsets).map(it => `${it[0]} (${it[1]})`),
+            cookies: Maps.rewriteMapAsObject(this.cookies),
+            customSettings: Maps.rewriteMapAsObject(this.customSettings)
+        } as unknown as Json
+    }
 }

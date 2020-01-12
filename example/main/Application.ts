@@ -48,17 +48,17 @@ export class Application {
 
         root.get("index.html", () => ResponseBuilder.redirectResponse("./", true))
 
-        root.get("duplicate.html", () => new ResponseBuilder().setStatusCode(200).build())
-        root.get("duplicate.html", () => new ResponseBuilder().setStatusCode(200).build())
+        root.get("error.html", () => { throw new Error("This is an example error") })
 
         root.get("README.md", request => {
             return new ResponseBuilder()
-                .setStatusCode(200)
                 .setPlainTextBody(request.customSettings.get("requestedLanguage") === "nl-NL" ? "# Voorbeeldbestand\n\nVoorbeeldtekst" :"# Example file\n\nExample text")
                 .setContentType("text/markdown")
                 .setHeader("Content-Language", request.customSettings.get("requestedLanguage"))
                 .build()
         })
+
+        root.get("info.json", req => new ResponseBuilder().setJsonBody(req).build())
 
         root.addResponseMiddleware(async (request, response) => {
             if(response === null && request.url.path !== "/ws404.html") {

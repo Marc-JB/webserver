@@ -1,7 +1,8 @@
 import { UrlWithParams, Url } from "../Url"
 import { ContentEncoding } from "../lib";
+import { JSObject } from "../../../lib/main";
 
-export interface ReadonlyHttpRequest {
+export interface ReadonlyHttpRequest extends JSObject {
     readonly url: UrlWithParams
     readonly method: string
 

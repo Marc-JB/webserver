@@ -10,6 +10,7 @@ export function parseAcceptHeader(content: string): ReadonlySet<[string, number]
         content
             .split(",")
             .map(it => it.trim())
+            .filter(it => it !== "")
             .map(it => {
                 const [code, q = "1"] = it.split(";q=")
                 return [code, parseFloat(q)] as [string, number]
@@ -23,6 +24,7 @@ export function parseCookieHeader(content: string): ReadonlyMap<string, string> 
     const cookieList = content
         .split(";")
         .map(it => it.trim())
+        .filter(it => it !== "")
         .map(it => it.split("=", 2))
 
     for(const [key, value] of cookieList)

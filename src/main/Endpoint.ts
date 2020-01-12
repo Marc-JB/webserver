@@ -15,8 +15,7 @@ export type AsyncRequestHandlerCallback = (request: ReadonlyHttpRequest) => Prom
 
 export class Endpoint implements EndpointChild {
     public readonly path: string
-    public readonly handlers: Set<RequestHandler> = new Set()
-    public readonly childEndpoints: Set<Endpoint> = new Set()
+    public readonly children: Set<EndpointChild> = new Set()
     public readonly requestMiddleware: Set<AsyncRequestMiddleware> = new Set()
     public readonly responseMiddleware: Set<AsyncResponseMiddleware> = new Set()
 
@@ -116,7 +115,7 @@ export class Endpoint implements EndpointChild {
      * @param handler a function that takes the request and returns a response or throws an error
      */
     public attachHandler(method: string, route: string, handler: RequestHandlerCallback){
-        this.handlers.add(new RequestHandler(route, method, Async.wrapInPromise(handler), this))
+        this.children.add(new RequestHandler(route, method, Async.wrapInPromise(handler), this))
     }
 
     /**
@@ -126,7 +125,7 @@ export class Endpoint implements EndpointChild {
      */
     public createEndpointAtPath(route: string): Endpoint {
         const endpoint = new Endpoint(route, this)
-        this.childEndpoints.add(endpoint)
+        this.children.add(endpoint)
         return endpoint
     }
 
@@ -147,6 +146,9 @@ export class Endpoint implements EndpointChild {
     }
 
     public async onRequest(url: string, request: HttpRequest): Promise<ReadonlyResponseInf | ResponseInf | null> {
+        if(!url.startsWith(this.fullPath))
+            return null
+
         /**
          * Note that async functions in the function are not resolved in parallel.
          * This is because users can modify the execution order of middleware and handlers.
@@ -164,48 +166,16 @@ export class Endpoint implements EndpointChild {
          * be available yet when `jsonParserMiddleware` requests it.
          */
 
-        // Request middleware
         for (const requestMiddleware of this.requestMiddleware)
             await requestMiddleware(request)
 
-        // Loop trough child endpoints to check if they have a reponse ready
         let responseObject: ReadonlyResponseInf | ResponseInf | null = null
 
-        // Loop trough child endpoints to check if they have a reponse ready
-        for(const endpoint of this.childEndpoints) {
-            if(url.startsWith(endpoint.fullPath)) {
-                const r = await endpoint.onRequest(url, request)
-                if(r !== null) {
-                    if(responseObject !== null)
-                        throw new Error(`${url} is registered on 2 different endpoints!`)
+        for(const handler of this.children)
+            responseObject = responseObject ?? await handler.onRequest(url, request)
 
-                    responseObject = r
-                }
-            }
-        }
-
-        // Loop trough own handlers to check if they have a response ready
-        for(const handler of this.handlers) {
-            const r = await handler.onRequest(url, request)
-            if(r !== null) {
-                if(responseObject !== null)
-                    throw new Error(`[${request.method.toUpperCase()}: ${url}] is registered 2 times!`)
-
-                responseObject = r
-            }
-        }
-
-        // Response middleware
-        for(const responseMiddleware of this.responseMiddleware) {
-            /**
-             * The following null check was placed inside the loop,
-             * because the middleware that is called here can return null,
-             * thus modifying the responseObject to be null.
-             */
-            const r = await responseMiddleware(request, responseObject as ResponseInf | null)
-            if(r !== null)
-                responseObject = r
-        }
+        for(const responseMiddleware of this.responseMiddleware)
+            responseObject = (await responseMiddleware(request, responseObject as ResponseInf | null)) ?? responseObject
 
         return responseObject
     }
@@ -217,8 +187,7 @@ export class Endpoint implements EndpointChild {
                 request: this.requestMiddleware.size,
                 response: this.responseMiddleware.size
             },
-            childHandlers: Array.from(this.handlers).map(it => it.toJSON()),
-            childEndpoints: Array.from(this.childEndpoints).map(it => it.toJSON())
+            children: Array.from(this.children).map(it => it.toJSON())
         }
     }
 }
