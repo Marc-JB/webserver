@@ -2,16 +2,20 @@ import { suite, test, expect } from "../../lib/test/index"
 import { Endpoint, ResponseBuilder } from "../main/index"
 import { Http2ServerRequest } from "http2"
 import { HttpRequestImpl } from "../main/request/HttpRequestImpl"
+import { Maps } from "../main/lib"
 
 export function createFakeHttpRequest(
     url: { scheme: "http" | "https", domain: string, path: string },
     method: string,
-    body: string | null = null
+    body: string | null = null,
+    additionalHeaders: Map<string, string> = new Map()
 ): Http2ServerRequest {
+    additionalHeaders.set(":scheme", url.scheme)
+    additionalHeaders.set(":authority", url.domain)
     return {
         url: url.path,
         method: method,
-        headers: { ":scheme": url.scheme, ":authority": url.domain },
+        headers: Maps.rewriteMapAsObject(additionalHeaders),
         [Symbol.asyncIterator](): AsyncIterableIterator<string> {
             return (async function*() { if(body) yield body })()
         }
