@@ -3,7 +3,7 @@ import { IncomingMessage as Http1ServerRequest, Server as Http1Server, ServerRes
 import { Server as Https1Server } from "https"
 import { Endpoint } from "./Endpoint"
 import { HttpRequestImpl } from "./request/HttpRequestImpl"
-import { Maps, Json, JSObject } from "../../lib/main/index"
+import { Maps, Json, JSObject, Lazy } from "../../lib/main/index"
 import { WebServerBuilder } from "./WebServerBuilder"
 import { ResponseBuilder } from "./response/ResponseBuilder"
 import { PageBuilder } from "./response/PageBuilder"
@@ -15,6 +15,9 @@ export enum CONNECTION_TYPE {
 
 export class WebServer implements JSObject {
     public readonly root = new Endpoint("")
+
+    protected static readonly notFoundPage = new Lazy(() => new ResponseBuilder().setStatusCode(404).setHtmlBody(PageBuilder.createPage("Page not Found")).build())
+    protected static readonly internalServerErrorPageBody = new Lazy(() => PageBuilder.createPage("Internal Server Error", "${error}", "red", "cyan"))
 
     protected isListening = false
 
@@ -33,35 +36,37 @@ export class WebServer implements JSObject {
         server.on("request", (req, res) => this.onHttpRequest(req, res))
     }
 
+    private getInternalErrorPage(error: any) {
+        const displayStackTrace = this.developmentMessagesEnabled && error instanceof Error
+        return WebServer.internalServerErrorPageBody.value.replace("${error}", displayStackTrace ?
+            PageBuilder.createCodeBlock("Stack trace", error.stack ?? "No stack trace found") :
+            "<p>Please try again later</p>"
+        )
+    }
+
     private async onHttpRequest(req: Http2ServerRequest | Http1ServerRequest, res: Http2ServerResponse | Http1ServerResponse) {
+        let responseObject: ReadonlyResponseInf
+
         try {
-            const url = (req.url as string).split("/").filter(it => it !== "").join("/")
-            const responseObject = await this.root.onRequest(url, new HttpRequestImpl(req))
-            await this.writeResponse(responseObject ?? new ResponseBuilder().setStatusCode(404).setHtmlBody(PageBuilder.createPage("Page not Found")).build(), res)
+            responseObject = await this.root.onRequest(
+                req.url?.split("/").filter(it => it !== "").join("/") ?? "",
+                new HttpRequestImpl(req)
+            ) ?? WebServer.notFoundPage.value
         } catch (error) {
             console.error(error)
 
-            const response = new ResponseBuilder()
+            responseObject = new ResponseBuilder()
                 .setStatusCode(500)
-                .setHtmlBody(PageBuilder.createPage("Internal Server Error", this.developmentMessagesEnabled && error instanceof Error ? PageBuilder.createCodeBlock("Stack trace", error.stack ?? "No stack trace found") : "<p>Please try again later</p>", "red", "cyan"))
+                .setHtmlBody(this.getInternalErrorPage(error))
                 .build()
-
-            await this.writeResponse(response, res)
         }
-    }
 
-    private writeResponse(responseObject: ReadonlyResponseInf, res: Http2ServerResponse | Http1ServerResponse): Promise<void> {
         res.writeHead(responseObject.code, Maps.rewriteMapAsObject(responseObject.headers))
 
-        if(responseObject.body === null)
-            return new Promise(resolve => res.end(() => resolve()))
-        else
-            return new Promise(resolve => res.end(responseObject.body as string, () => resolve()))
+        await new Promise(resolve => responseObject.body === null ? res.end(resolve) : res.end(responseObject.body, resolve))
     }
 
-    /**
-     * Makes the server start listening for requests
-     */
+    /** Makes the server start listening for requests */
     public listen(): Promise<void> {
         return new Promise((resolve, reject) => {
             this.server.once("error", (error: Error) => reject(error))
@@ -72,9 +77,7 @@ export class WebServer implements JSObject {
         })
     }
 
-    /**
-     * Makes the server stop listening for requests
-     */
+    /** Makes the server stop listening for requests */
     public close() {
         return this.isListening ? new Promise<void>((resolve, reject) => {
             this.server.close(error => error ? reject(error) : resolve())

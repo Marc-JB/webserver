@@ -6,9 +6,7 @@ import { ResponseInf, ReadonlyResponseInf } from "../response/ResponseInf"
 import { Url } from "../Url"
 import { Json } from "../../../lib/main"
 
-/**
- * This matches the query/anchor part of the url. Will also match if there's no query or anchor.
- */
+/** This matches the query/anchor part of the url. Will also match if there's no query or anchor. */
 const regExpMatchUrlQueryAndAnchor = "((\\?|#).*|)"
 
 function createRegExp(regExpString: string, matchType: "full" | "global" | "default" = "default"): RegExp {
