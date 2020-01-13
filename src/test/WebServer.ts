@@ -1,7 +1,9 @@
 import { suite, test, expect } from "../../lib/test/index"
-import { WebServer, CONNECTION_TYPE, ResponseBuilder } from "../main/index"
-import { Http2Server, Http2ServerRequest, Http2ServerResponse } from "http2"
+import { WebServer, ResponseBuilder } from "../main/index"
+import { Http2ServerResponse } from "http2"
 import { createFakeHttpRequest } from "./Endpoint"
+import { Async } from "../main/lib"
+import { MockCallback } from "../main/WebServerBuilder"
 
 @suite
 export class WebServerTests {
@@ -29,7 +31,7 @@ export class WebServerTests {
         let responseBody: string | null = null
         let responseCode: number | null = null
 
-        class CustomResponse {
+        class FakeResponse {
             writeHead(code: number, _: { [key: string]: string | number | string[] }){
                 responseCode = code
             }
@@ -40,13 +42,8 @@ export class WebServerTests {
             }
         }
 
-        type CbType = (req: Http2ServerRequest, res: Http2ServerResponse) => Promise<void>
-        let callback: CbType | null = null
-        class CustomHttpServer {
-            on(_: "request", cb: CbType) { callback = cb }
-        }
-
-        const server = new WebServer((new CustomHttpServer() as any as Http2Server), 443, CONNECTION_TYPE.HTTPS2, true)
+        let callback: MockCallback | null = null
+        const server = WebServer.Builder.createMock(cb => { callback = cb })
         const booksEndpoint = server.root.createEndpointAtPath("books")
 
         booksEndpoint.get("/{id}/info.json", request => {
@@ -66,7 +63,10 @@ export class WebServerTests {
         });
 
         // Act
-        await (callback as CbType | null)?.(createFakeHttpRequest({scheme: "https", domain: "localhost", path: "/books/1234/info.json?lang=nl"}, "GET"), new CustomResponse() as Http2ServerResponse)
+        await Async.wrapInPromise(callback as unknown as MockCallback)(
+            createFakeHttpRequest({scheme: "https", domain: "localhost", path: "/books/1234/info.json?lang=nl"}, "GET"),
+            new FakeResponse() as Http2ServerResponse
+        )
 
         // Assert
         expect(responseCode).to.be.not.null

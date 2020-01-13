@@ -1,14 +1,17 @@
 import { promises as fs } from "fs"
-import http2 from "http2"
+import http2, { Http2ServerRequest, Http2ServerResponse, Http2Server } from "http2"
 import https1 from "https"
 import http1 from "http"
 import { WebServer, CONNECTION_TYPE } from "./WebServer"
+import { Async } from "../../lib/main"
 
 type CertificateType = string | Buffer | fs.FileHandle
 
 function isFileHandle(cert: CertificateType | null): cert is fs.FileHandle {
     return cert !== null && typeof cert !== "string" && "readFile" in cert
 }
+
+export type MockCallback = (req: Http2ServerRequest, res: Http2ServerResponse) => Async.MaybeAsync<void>
 
 export class WebServerBuilder {
     protected cert: CertificateType | null = null
@@ -86,5 +89,15 @@ export class WebServerBuilder {
         } else {
             throw new Error("Key and cert must be both set or unset")
         }
+    }
+
+    static createMock(onRequestCallbackAvailable: ((callback: MockCallback) => void)): WebServer {
+        class CustomHttpServer {
+            on(_: "request", callback: MockCallback) {
+                onRequestCallbackAvailable(callback)
+            }
+        }
+
+        return new WebServer((new CustomHttpServer() as any as Http2Server), 443, CONNECTION_TYPE.HTTPS2, true)
     }
 }
