@@ -27,7 +27,7 @@ export class Application {
         const root = this.server.root
 
         root.addRequestMiddleware(request => {
-            request.customSettings.set("requestedLanguage", request.url.query["lang"] === "nl" ? "nl-NL" : "en-US")
+            request.customSettings.set("requestedLanguage", request.url.query.get("lang") === "nl" ? "nl-NL" : "en-US")
         })
 
         const indexPage = new Lazy(async () => {
