@@ -1,6 +1,6 @@
 import { UrlWithParams, Url } from "../Url"
 import { ContentEncoding } from "../lib";
-import { JSObject } from "../../../lib/main";
+import { JSObject, Json } from "../../../lib/main";
 
 export interface ReadonlyHttpRequest extends JSObject {
     readonly url: UrlWithParams
@@ -32,6 +32,8 @@ export interface ReadonlyHttpRequest extends JSObject {
 
     /** Options passed trough by request middleware */
     readonly customSettings: ReadonlyMap<string, any>
+
+    toJSON(): Json
 }
 
 export interface HttpRequest extends ReadonlyHttpRequest {
