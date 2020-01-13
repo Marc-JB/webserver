@@ -95,7 +95,7 @@ export class EndpointTests {
         let query: string | null = null
         endpoint.get("/books/{id}/authors.json", request => {
             param = request.url.params.get("id") ?? null
-            query = request.url.query["lang"] as string ?? null
+            query = request.url.query.get("lang") as string ?? null
             return new ResponseBuilder().build()
         })
         const fakeRequest = createFakeHttpRequest({scheme: "https", domain: "localhost", path: "/books/1234/authors.json?lang=nl"}, "GET")
