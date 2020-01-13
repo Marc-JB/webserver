@@ -1,4 +1,5 @@
 import { parse } from "url"
+import { Maps } from "../../lib/main"
 
 export interface Url {
     readonly auth: string | null
@@ -27,10 +28,7 @@ export function parseUrlWithParams(url: string): UrlWithParams {
 
 export function parseUrl(url: string): Url {
     const parsedUrl = parse(url, true)
-    const queryMap = new Map<string, string | string[]>()
-    for(const key in parsedUrl.query) {
-        queryMap.set(key, parsedUrl.query[key])
-    }
+    const queryMap = Maps.rewriteObjectAsMap(parsedUrl.query)
     delete (parsedUrl as any).query;
     (parsedUrl as any).query = queryMap
     return (parsedUrl as any) as Url

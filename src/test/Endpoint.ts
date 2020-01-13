@@ -3,7 +3,7 @@ import { Endpoint, ResponseBuilder } from "../main/index"
 import { Http2ServerRequest } from "http2"
 import { HttpRequestImpl } from "../main/request/HttpRequestImpl"
 
-function createFakeHttpRequest(
+export function createFakeHttpRequest(
     url: { scheme: "http" | "https", domain: string, path: string },
     method: string,
     body: string | null = null
