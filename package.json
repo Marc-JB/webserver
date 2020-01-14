@@ -5,9 +5,9 @@
     "main": "./build/core/main/index.js",
     "typings": "./build/core/main/index.d.ts",
     "scripts": {
-        "start": "tsc -b ./example/main/ && node --experimental-modules ./build/example/main/index.js",
+        "start": "tsc -b ./example/main/ && node --experimental-modules --harmony ./build/example/main/index.js",
         "build": "tsc -b ./src/main/",
-        "test": "tsc -b ./src/test/ && tsc -b ./example/test/ && mocha -r esm --recursive --exit ./build/"
+        "test": "tsc -b ./src/test/ && tsc -b ./example/test/ && mocha --harmony -r esm --recursive --exit ./build/"
     },
     "engineStrict": true,
     "engines": {
