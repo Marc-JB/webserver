@@ -1,9 +1,10 @@
 {
     "name": "@peregrine/webserver",
-    "version": "0.5.0-alpha",
+    "version": "0.5.7",
     "description": "Experimental http server for node",
-    "main": "./build/core/main/index.js",
-    "typings": "./build/core/main/index.d.ts",
+    "main": "./build/src/main/index.js",
+    "typings": "./build/src/main/index.d.ts",
+    "type": "commonjs",
     "scripts": {
         "start": "tsc -b ./example/main/ && node --experimental-modules --harmony ./build/example/main/index.js",
         "build": "tsc -b ./src/main/",

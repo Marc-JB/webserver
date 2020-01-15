@@ -71,3 +71,7 @@ example/
 build/example/
 build/src/test/
 build/lib/test/
+*.code-workspace
+LICENSE
+tsconfig-base.json
+tsconfig.tsbuildinfo

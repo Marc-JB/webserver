@@ -6,10 +6,19 @@ import { UrlWithParams, parseUrl, parseUrlWithParams } from "../Url"
 import { parseHeadersObject, parseAcceptHeader, parseCookieHeader } from "./Parsers"
 import { Json } from "../../../lib/main"
 
+function getUrl(headers: ReadonlyMap<string, string | string[]>, url: string | undefined): UrlWithParams {
+    let newUrl = url ?? ""
+    if(headers.has(":authority"))
+        newUrl = headers.get(":authority") + "" + newUrl
+    if(headers.has(":scheme"))
+        newUrl = headers.get(":scheme") + "://" + newUrl
+    return parseUrlWithParams(newUrl)
+}
+
 export class HttpRequestImpl implements HttpRequest {
     public readonly headers: ReadonlyMap<string, string | string[]> = Maps.rewriteObjectAsMap(parseHeadersObject(this.request.headers))
 
-    public readonly url: UrlWithParams = parseUrlWithParams(this.headers.get(":scheme") + "://" + this.headers.get(":authority") + this.request.url ?? "")
+    public readonly url: UrlWithParams = getUrl(this.headers, this.request.url)
     public readonly method: string = (this.request.method ?? "GET").toUpperCase()
 
     public readonly dataSaverEnabled = this.headers.has("save-data") ? this.headers.get("save-data") === "on" : null
