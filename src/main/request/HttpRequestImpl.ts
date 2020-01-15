@@ -16,6 +16,7 @@ export class HttpRequestImpl implements HttpRequest {
     public readonly doNotTrackEnabled = this.headers.has("dnt") ? this.headers.get("dnt") === "1" : null
 
     public readonly referer = this.headers.has("referer") ? parseUrl(this.headers.get("referer") as string) : null
+    /** @deprecated */
     public readonly userAgent = (this.headers.get("user-agent") ?? null) as string | null
 
     public readonly acceptedContentTypes = parseAcceptHeader(this.headers.get("accept") as string ?? "")
@@ -23,6 +24,7 @@ export class HttpRequestImpl implements HttpRequest {
     public readonly acceptedContentEncodings = parseAcceptHeader(this.headers.get("accept-encoding") as string ?? "") as ReadonlySet<[ContentEncoding | "*", number]>
     public readonly acceptedContentCharsets = parseAcceptHeader(this.headers.get("accept-charset") as string ?? "")
 
+    /** @deprecated */
     public readonly cookies = parseCookieHeader(this.headers.get("cookie") as string ?? "")
 
     private readonly _body = new Lazy(() => new StreamToPromise(this.request).getResult())

@@ -18,6 +18,7 @@ export function parseAcceptHeader(content: string): ReadonlySet<[string, number]
     )
 }
 
+/** @deprecated */
 export function parseCookieHeader(content: string): ReadonlyMap<string, string> {
     const map = new Map()
 

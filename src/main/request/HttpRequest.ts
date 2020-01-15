@@ -20,8 +20,10 @@ export interface ReadonlyHttpRequest extends JSObject {
      */
     readonly doNotTrackEnabled: boolean | null
 
+    /** @deprecated */
     readonly userAgent: string | null
     readonly referer: Url | null
+    /** @deprecated */
     readonly cookies: ReadonlyMap<string, string>
     readonly acceptedLanguages: ReadonlySet<[string, number]>
     readonly acceptedContentTypes: ReadonlySet<[string, number]>
