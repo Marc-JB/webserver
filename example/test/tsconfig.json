@@ -1,0 +1,13 @@
+{
+    "extends": "../../tsconfig-base.json",
+    "compilerOptions": {
+        "outDir": "../../build/example/test/"
+    },
+    "references": [
+        {
+            "path": "../main/"
+        }, {
+            "path": "../../lib/test/"
+        }
+    ]
+}

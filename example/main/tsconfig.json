@@ -1,11 +1,11 @@
 {
     "extends": "../../tsconfig-base.json",
     "compilerOptions": {
-        "outDir": "../../build/src/main/"
+        "outDir": "../../build/example/main/"
     },
     "references": [
         {
-            "path": "../../lib/main/"
+            "path": "../../src/main/"
         }
     ]
 }

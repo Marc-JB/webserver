@@ -60,19 +60,18 @@ typings/
 # next.js build output
 .next
 
-# Source files
-src/
-tsconfig.json
-
-# Tests
-build/tests/
-
 # VSCode
 .vscode/
+
+# Code not used for the exported library
+src/
+lib/
+example/
+.github/
+build/example/
+build/src/test/
+build/lib/test/
 *.code-workspace
-
-# CI
-.travis.yml
-
-# Other
-package-lock.json
+LICENSE
+tsconfig-base.json
+tsconfig.tsbuildinfo

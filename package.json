@@ -1,38 +1,38 @@
 {
-  "name": "@peregrine/webserver",
-  "version": "0.3.0-alpha",
-  "description": "HTTP server using TypeScript decorators",
-  "main": "build/main/index.js",
-  "types": "build/main/index.d.ts",
-  "scripts": {
-    "build": "tsc -b -v",
-    "test": "mocha --recursive build/tests"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Peregrine-node/webserver.git"
-  },
-  "keywords": [
-    "webserver"
-  ],
-  "author": "Marc",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Peregrine-node/webserver/issues"
-  },
-  "homepage": "https://github.com/Peregrine-node/webserver#readme",
-  "dependencies": {
-    "@peregrine/exceptions": "^0.2.0",
-    "@peregrine/filesystem": "^0.4.0"
-  },
-  "devDependencies": {
-    "@testdeck/mocha": "0.0.6",
-    "@types/chai": "^4.2.3",
-    "@types/mocha": "^5.2.7",
-    "@types/node": "^12.7.8",
-    "chai": "^4.2.0",
-    "mocha": "^6.2.0",
-    "tslint": "^5.20.0",
-    "typescript": "^3.6.3"
-  }
+    "name": "@peregrine/webserver",
+    "version": "0.5.9",
+    "description": "Experimental http server for node",
+    "main": "./build/src/main/index.js",
+    "typings": "./build/src/main/index.d.ts",
+    "type": "commonjs",
+    "scripts": {
+        "start": "tsc -b ./example/main/ && node --experimental-modules --harmony ./build/example/main/index.js",
+        "build": "tsc -b ./src/main/",
+        "test": "tsc -b ./src/test/ && tsc -b ./example/test/ && mocha --harmony -r esm --recursive --exit ./build/"
+    },
+    "engineStrict": true,
+    "engines": {
+        "node": ">= 8.10.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Marc-JB/webserver.git"
+    },
+    "author": "",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/Marc-JB/webserver/issues"
+    },
+    "homepage": "https://github.com/Marc-JB/webserver#readme",
+    "devDependencies": {
+        "@types/chai": "^4.2.5",
+        "@types/chai-as-promised": "^7.1.2",
+        "@types/mocha": "^5.2.7",
+        "@types/node": "^12.12.14",
+        "chai": "^4.2.0",
+        "chai-as-promised": "^7.1.1",
+        "esm": "^3.2.25",
+        "mocha": "^6.2.2",
+        "typescript": "^3.7.2"
+    }
 }
