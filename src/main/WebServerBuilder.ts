@@ -16,6 +16,7 @@ export type MockCallback = (req: Http2ServerRequest, res: Http2ServerResponse) =
 export class WebServerBuilder {
     protected cert: CertificateType | null = null
     protected key: CertificateType | null = null
+    protected chain: CertificateType | null = null
     protected port: string | number | null = null
     protected httpVersion: 1 | 2 = 2
 
@@ -44,6 +45,15 @@ export class WebServerBuilder {
         return this
     }
 
+    getChain(): CertificateType | null {
+        return this.key
+    }
+
+    setChain(chain: CertificateType): this {
+        this.chain = chain
+        return this
+    }
+
     setPort(port: string | number): this {
         this.port = port
         return this
@@ -55,22 +65,22 @@ export class WebServerBuilder {
     }
 
     async build(): Promise<WebServer> {
-        let cert: string | Buffer | null = null
-        let key: string | Buffer | null = null
-
-        if (isFileHandle(this.cert)) {
-            cert = await this.cert.readFile()
-            await this.cert.close()
-        } else {
-            cert = this.cert
+        async function getCert(cert: CertificateType | null) {
+            let c: string | Buffer | null
+            if (isFileHandle(cert)) {
+                c = await cert.readFile()
+                await cert.close()
+            } else {
+                c = cert
+            }
+            return c
         }
 
-        if (isFileHandle(this.key)) {
-            key = await this.key.readFile()
-            await this.key.close()
-        } else {
-            key = this.key
-        }
+        let [cert, key, chain]: (string | Buffer | null)[] = await Promise.all([
+            getCert(this.cert),
+            getCert(this.key),
+            getCert(this.chain)
+        ]);
 
         if (cert === null && key === null) {
             return new WebServer(
@@ -81,7 +91,7 @@ export class WebServerBuilder {
             )
         } else if (cert !== null && key !== null) {
             return new WebServer(
-                this.httpVersion === 1 ? https1.createServer({ cert, key }) : http2.createSecureServer({ allowHTTP1: true, cert, key }),
+                this.httpVersion === 1 ? https1.createServer({ cert, key, ca: chain ?? undefined }) : http2.createSecureServer({ allowHTTP1: true, cert, key }),
                 this.port ?? 443,
                 this.httpVersion === 1 ? CONNECTION_TYPE.HTTPS1 : CONNECTION_TYPE.HTTPS2_WITH_HTTP1_FALLBACK,
                 this.developmentMessagesEnabled
