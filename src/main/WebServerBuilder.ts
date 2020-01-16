@@ -2,6 +2,7 @@ import { promises as fs } from "fs"
 import http2, { Http2ServerRequest, Http2ServerResponse, Http2Server } from "http2"
 import https1 from "https"
 import http1 from "http"
+import { SecureContextOptions } from "tls"
 import { WebServer, CONNECTION_TYPE } from "./WebServer"
 import { Async } from "../../lib/main"
 
@@ -16,9 +17,10 @@ export type MockCallback = (req: Http2ServerRequest, res: Http2ServerResponse) =
 export class WebServerBuilder {
     protected cert: CertificateType | null = null
     protected key: CertificateType | null = null
-    protected chain: CertificateType | null = null
+    protected ca: CertificateType | null = null
     protected port: string | number | null = null
     protected httpVersion: 1 | 2 = 2
+    protected customOptions: Readonly<SecureContextOptions> | null = null
 
     public developmentMessagesEnabled: boolean = false
 
@@ -45,12 +47,12 @@ export class WebServerBuilder {
         return this
     }
 
-    getChain(): CertificateType | null {
+    getCA(): CertificateType | null {
         return this.key
     }
 
-    setChain(chain: CertificateType): this {
-        this.chain = chain
+    setCA(ca: CertificateType): this {
+        this.ca = ca
         return this
     }
 
@@ -61,6 +63,11 @@ export class WebServerBuilder {
 
     useHttp1(): this {
         this.httpVersion = 1
+        return this
+    }
+
+    setCustomSecurityOptions(options: Readonly<SecureContextOptions>): this {
+        this.customOptions = options
         return this
     }
 
@@ -76,28 +83,33 @@ export class WebServerBuilder {
             return c
         }
 
-        let [cert, key, chain]: (string | Buffer | null)[] = await Promise.all([
+        let [cert, key, ca]: (string | Buffer | null)[] = await Promise.all([
             getCert(this.cert),
             getCert(this.key),
-            getCert(this.chain)
+            getCert(this.ca)
         ]);
 
-        if (cert === null && key === null) {
+        if (cert !== null && key !== null) {
+            return new WebServer(
+                this.httpVersion === 1 ? https1.createServer({ cert, key, ca: ca ?? undefined }) : http2.createSecureServer({ allowHTTP1: true, cert, key, ca: ca ?? undefined }),
+                this.port ?? 443,
+                this.httpVersion === 1 ? CONNECTION_TYPE.HTTPS1 : CONNECTION_TYPE.HTTPS2_WITH_HTTP1_FALLBACK,
+                this.developmentMessagesEnabled
+            )
+        } else if (this.customOptions) {
+            return new WebServer(
+                this.httpVersion === 1 ? https1.createServer(this.customOptions) : http2.createSecureServer(this.customOptions),
+                this.port ?? 443,
+                this.httpVersion === 1 ? CONNECTION_TYPE.HTTPS1 : CONNECTION_TYPE.HTTPS2,
+                this.developmentMessagesEnabled
+            )
+        } else {
             return new WebServer(
                 this.httpVersion === 1 ? http1.createServer() : http2.createServer(),
                 this.port ?? 80,
                 this.httpVersion === 1 ? CONNECTION_TYPE.HTTP1 : CONNECTION_TYPE.HTTP2,
                 this.developmentMessagesEnabled
             )
-        } else if (cert !== null && key !== null) {
-            return new WebServer(
-                this.httpVersion === 1 ? https1.createServer({ cert, key, ca: chain ?? undefined }) : http2.createSecureServer({ allowHTTP1: true, cert, key }),
-                this.port ?? 443,
-                this.httpVersion === 1 ? CONNECTION_TYPE.HTTPS1 : CONNECTION_TYPE.HTTPS2_WITH_HTTP1_FALLBACK,
-                this.developmentMessagesEnabled
-            )
-        } else {
-            throw new Error("Key and cert must be both set or unset")
         }
     }
 
