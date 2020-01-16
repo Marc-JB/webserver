@@ -1,8 +1,15 @@
-# @peregrine/webserver [![license](https://badgen.net/github/license/Marc-JB/webserver?scale=1.1&color=cyan)](./LICENSE) [![npm](https://badgen.net/badge/icon/npm?icon=npm&color=cyan&scale=1.1&label)](https://www.npmjs.com/package/@peregrine/webserver)
+# @peregrine/webserver [![license](https://badgen.net/github/license/Marc-JB/webserver?scale=1.1&color=cyan)](https://github.com/Marc-JB/webserver/blob/master/LICENSE) [![npm](https://badgen.net/badge/icon/npm?icon=npm&color=cyan&scale=1.1&label)](https://www.npmjs.com/package/@peregrine/webserver) ![node version](https://badgen.net/npm/node/@peregrine/webserver/dev?scale=1.1) ![types](https://badgen.net/npm/types/@peregrine/webserver/dev?icon=typescript&scale=1.1)
 Experimental http server for node.
 
+## Install
+- v0.3: `npm install @peregrine/webserver`
+- v0.5 (rewrite without decorators, will be re-added in future): `npm install @peregrine/webserver@dev`
+
+## Notes
+- On node < 10.0, use the --harmony flag when running your project
+
 ## Example
-Check out [the example that is part of this project](./example/main/Application.ts).
+Check out [the example that is part of this project](https://github.com/Marc-JB/webserver/blob/master/example/main/Application.ts).
 
 ## To do
 **Before version 1.0:**
