@@ -58,7 +58,7 @@ export class ResponseBuilder {
         return this.setHeader("Content-Encoding", values.join(", "))
     }
 
-    public setCORS(allowedOrigins: string = "*", allowedMethods: string[] = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], allowedHeaders: string[] = ["X-Requested-With", "Content-Type"]): this {
+    public setCORS(allowedOrigins: string = "*", allowedMethods: string[] = ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], allowedHeaders: string[] = ["X-Requested-With", "Content-Type"]): this {
         return this
             .setHeader("Access-Control-Allow-Origin", allowedOrigins)
             .setHeader("Access-Control-Allow-Methods", allowedMethods.join(", "))
