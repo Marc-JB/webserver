@@ -19,7 +19,7 @@ export class WebServerBuilder {
     protected key: CertificateType | null = null
     protected ca: CertificateType | null = null
     protected port: string | number | null = null
-    protected httpVersion: 1 | 2 = 2
+    protected httpVersion: 1 | 2 | 3 = 2
     protected customOptions: Readonly<SecureContextOptions> | null = null
 
     public developmentMessagesEnabled: boolean = false
