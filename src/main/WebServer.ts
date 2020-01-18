@@ -10,7 +10,7 @@ import { PageBuilder } from "./response/PageBuilder"
 import { ReadonlyResponseInf } from "./response/ResponseInf"
 
 export enum CONNECTION_TYPE {
-    HTTP1, HTTPS1, HTTP2, HTTPS2_WITH_HTTP1_FALLBACK, HTTPS2
+    HTTP1, HTTPS1, HTTP2, HTTPS2_WITH_HTTP1_FALLBACK, HTTPS2, HTTPS3
 }
 
 export class WebServer implements JSObject {

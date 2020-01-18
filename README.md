@@ -2,11 +2,11 @@
 Experimental http server for node.
 
 ## Install
-- v0.3: `npm install @peregrine/webserver`
-- v0.5 (rewrite without decorators, will be re-added in future): `npm install @peregrine/webserver@dev`
+- **v0.3**: `npm install @peregrine/webserver`
+- **v0.5**: `npm install @peregrine/webserver@dev` *(rewrite without decorators, will be re-added in future)*
 
 ## Notes
-- On node < 10.0, use the --harmony flag when running your project
+- On node < 10.0, use the `--harmony` flag when running your project
 
 ## Example
 Check out [the example that is part of this project](https://github.com/Marc-JB/webserver/blob/master/example/main/Application.ts).
