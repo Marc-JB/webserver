@@ -34,6 +34,22 @@ export class ResponseBuilder {
         return this
     }
 
+    public setCacheExpiration(expirationInSeconds: number): this {
+        const now = new Date()
+        now.setTime(now.getTime() + expirationInSeconds * 1000)
+        this.setHeader("Cache-Control", `public, max-age=${expirationInSeconds}, s-maxage=${expirationInSeconds}`)
+        this.setHeader("Expires", now.toUTCString())
+        return this
+    }
+
+    public setCacheExpirationDate(expirationDate: Date): this {
+        const now = new Date()
+        const expirationInSeconds = Math.round((expirationDate.getTime() - now.getTime()) / 1000)
+        this.setHeader("Cache-Control", `public, max-age=${expirationInSeconds}, s-maxage=${expirationInSeconds}`)
+        this.setHeader("Expires", expirationDate.toUTCString())
+        return this
+    }
+
     public setContentType(value: string): this {
         return this.setHeader("Content-Type", value)
     }
