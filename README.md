@@ -1,4 +1,4 @@
-# @peregrine/webserver [![license](https://badgen.net/github/license/Marc-JB/webserver?scale=1.1&color=cyan)](https://github.com/Marc-JB/webserver/blob/master/LICENSE) [![npm](https://badgen.net/badge/icon/npm?icon=npm&color=cyan&scale=1.1&label)](https://www.npmjs.com/package/@peregrine/webserver) ![node version](https://badgen.net/npm/node/@peregrine/webserver/dev?scale=1.1) ![types](https://badgen.net/npm/types/@peregrine/webserver/dev?icon=typescript&scale=1.1)
+# @peregrine/webserver [![Node CI](https://github.com/Marc-JB/webserver/workflows/Node%20CI/badge.svg)](https://github.com/Marc-JB/webserver/actions?query=workflow%3A%22Node+CI%22) [![license](https://badgen.net/github/license/Marc-JB/webserver?color=cyan)](https://github.com/Marc-JB/webserver/blob/master/LICENSE) [![npm](https://badgen.net/badge/icon/npm?icon=npm&color=cyan&label)](https://www.npmjs.com/package/@peregrine/webserver) ![node version](https://badgen.net/npm/node/@peregrine/webserver/dev) ![types](https://badgen.net/npm/types/@peregrine/webserver/dev?icon=typescript)
 Experimental http server for node.
 
 ## Install
