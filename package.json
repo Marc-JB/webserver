@@ -8,7 +8,8 @@
     "scripts": {
         "start": "tsc -b ./example/main/ && node --experimental-modules --harmony ./build/example/main/index.js",
         "build": "tsc -b ./src/main/",
-        "test": "tsc -b ./src/test/ && tsc -b ./example/test/ && mocha --harmony -r esm --recursive --exit ./build/"
+        "test": "tsc -b ./src/test/ && tsc -b ./example/test/ && mocha --harmony -r esm --recursive --exit ./build/",
+        "coverage": "nyc --reporter=lcov --reporter=text-summary npm run test"
     },
     "engineStrict": true,
     "engines": {
@@ -33,6 +34,7 @@
         "chai-as-promised": "^7.1.1",
         "esm": "^3.2.25",
         "mocha": "^6.2.2",
+        "nyc": "^15.0.0",
         "typescript": "^3.7.2"
     }
 }
